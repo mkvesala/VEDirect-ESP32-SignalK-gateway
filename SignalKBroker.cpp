@@ -1,0 +1,110 @@
+#include "SignalKBroker.h"
+#include "secrets.h"
+#include <esp_mac.h>
+
+using namespace websockets;
+
+SignalKBroker::SignalKBroker(VEDProcessor& processorRef)
+    : _processor(processorRef)
+{}
+
+bool SignalKBroker::begin() {
+    setSignalKURL();
+    setSignalKSource();
+    return connectWebsocket();
+}
+
+void SignalKBroker::handleStatus() {
+    if (_ws_open) _ws.poll();
+}
+
+bool SignalKBroker::connectWebsocket() {
+    _ws_open = _ws.connect(_sk_url);
+    if (_ws_open) {
+        _ws.onMessage([this](WebsocketsMessage msg) {
+            this->onMessage(msg);
+        });
+        _ws.onEvent([this](WebsocketsEvent event, const String& data) {
+            this->onEvent(event, data);
+        });
+    }
+    return _ws_open;
+}
+
+void SignalKBroker::closeWebsocket() {
+    _ws.close();
+    _ws_open = false;
+}
+
+void SignalKBroker::setSignalKURL() {
+    if (strlen(SK_TOKEN) > 0)
+        snprintf(_sk_url, sizeof(_sk_url),
+            "ws://%s:%u/signalk/v1/stream?token=%s", SK_HOST, SK_PORT, SK_TOKEN);
+    else
+        snprintf(_sk_url, sizeof(_sk_url),
+            "ws://%s:%u/signalk/v1/stream", SK_HOST, SK_PORT);
+}
+
+void SignalKBroker::setSignalKSource() {
+    uint8_t m[6];
+    esp_efuse_mac_get_default(m);
+    snprintf(_sk_source, sizeof(_sk_source),
+        "esp32.vedirect-%02x%02x%02x", m[3], m[4], m[5]);
+}
+
+void SignalKBroker::onEvent(WebsocketsEvent event, const String& /*data*/) {
+    switch (event) {
+        case WebsocketsEvent::ConnectionOpened:
+            _ws_open = true;
+            break;
+        case WebsocketsEvent::ConnectionClosed:
+            _ws_open = false;
+            break;
+        case WebsocketsEvent::GotPing:
+            _ws.pong();
+            break;
+        default:
+            break;
+    }
+}
+
+void SignalKBroker::onMessage(WebsocketsMessage msg) {
+    if (!msg.isText()) return;
+    // Saapuvat viestit voidaan prosessoida tässä tarvittaessa
+    (void)msg;
+}
+
+void SignalKBroker::sendDelta() {
+    if (!_ws_open) return;
+
+    ESPNow::BatteryDelta d = _processor.getDelta();
+
+    _delta_doc.clear();
+    _delta_doc["context"] = "vessels.self";
+    auto updates = _delta_doc.createNestedArray("updates");
+    auto up      = updates.createNestedObject();
+    up["$source"] = _sk_source;
+    auto values  = up.createNestedArray("values");
+
+    auto add = [&](const char* path, float v) {
+        if (!validf(v)) return;
+        auto o      = values.createNestedObject();
+        o["path"]   = path;
+        o["value"]  = v;
+    };
+
+    add("electrical.batteries.house.voltage",               d.house_voltage);
+    add("electrical.batteries.house.current",               d.house_current);
+    add("electrical.batteries.house.power",                 d.house_power);
+    add("electrical.batteries.house.capacity.stateOfCharge", d.house_soc);
+    add("electrical.batteries.start.voltage",               d.start_voltage);
+
+    if (values.size() == 0) return;
+
+    char buf[JSON_BUF_SIZE];
+    size_t n = serializeJson(_delta_doc, buf, sizeof(buf));
+    if (!_ws.send(buf, n)) {
+        _ws.close();
+        _ws_open = false;
+    }
+}
