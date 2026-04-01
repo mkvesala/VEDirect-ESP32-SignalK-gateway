@@ -14,6 +14,11 @@ VEDApplication::VEDApplication()
 
 // ── begin() ───────────────────────────────────────────────────
 void VEDApplication::begin() {
+
+     // I2C 
+    Wire.begin(21, 22);
+    delay(47);
+
     // 1. Display ensin — I2C jo alustettu kutsujassa (.ino:ssa Wire.begin)
     _display.begin();
     _display.showMessage("STARTING...", "INIT WIFI...");
