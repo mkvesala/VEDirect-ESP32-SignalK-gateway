@@ -20,7 +20,7 @@ void VEDProcessor::update() {
         ? static_cast<float>(snap.w) : NAN;
 
     _delta.house_soc     = ageOk(snap.ts_soc, STALE_MS)
-        ? socToRatio(snap.soc) : NAN;
+        ? socToPercent(snap.soc) : NAN;
 
     _delta.start_voltage = ageOk(snap.ts_vs, STALE_MS)
         ? mvToV(snap.vs) : NAN;

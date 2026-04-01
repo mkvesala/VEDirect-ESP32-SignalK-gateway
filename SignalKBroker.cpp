@@ -96,7 +96,7 @@ void SignalKBroker::sendDelta() {
     add("electrical.batteries.house.voltage",               d.house_voltage);
     add("electrical.batteries.house.current",               d.house_current);
     add("electrical.batteries.house.power",                 d.house_power);
-    add("electrical.batteries.house.capacity.stateOfCharge", d.house_soc);
+    add("electrical.batteries.house.capacity.stateOfCharge", d.house_soc / 100.0f);
     add("electrical.batteries.start.voltage",               d.start_voltage);
 
     if (values.size() == 0) return;

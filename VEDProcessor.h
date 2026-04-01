@@ -32,10 +32,10 @@ private:
 
     static float mvToV(int32_t mv)       { return mv / 1000.0f; }
     static float maToA(int32_t ma)       { return ma / 1000.0f; }
-    static float socToRatio(int32_t raw) {
-        float x = raw / 1000.0f;
-        if (x < 0.0f) x = 0.0f;
-        if (x > 1.0f) x = 1.0f;
+    static float socToPercent(int32_t raw) {
+        float x = raw / 10.0f;
+        if (x <   0.0f) x =   0.0f;
+        if (x > 100.0f) x = 100.0f;
         return x;
     }
     static bool ageOk(uint32_t ts, uint32_t max_ms) {

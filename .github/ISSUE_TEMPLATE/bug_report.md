@@ -20,8 +20,8 @@ A clear and concise description of what you expected to happen.
 **Environment:**
 - Arduino IDE version: [e.g. 2.3.6]
 - ESP32 board package: [e.g. 3.3.5]
-- ESP32 board: [e.g. SH-ESP32 Rev 2.2.1]
-- CMPS14 firmware: [e.g. v7]
+- ESP32 board: [e.g. ESP32 Dev Module]
+- Victron SmartShunt model: [e.g. SmartShunt 300A]
 - Library versions:
   - ArduinoWebsockets: [e.g. 0.5.4]
   - ArduinoJson: [e.g. 7.4.2]
@@ -34,11 +34,11 @@ Paste Serial monitor output or LCD messages here:
 ```
 
 **Screenshots**
-If applicable, add screenshots (Web UI, LCD).
+If applicable, add screenshots (LCD).
 
 **Hardware setup**
 - [ ] LCD connected
-- [ ] Logic level converter used
+- [ ] VE.Direct cable wired to GPIO16
 - [ ] Power supply: [voltage/source]
 
 **Additional context**

@@ -17,17 +17,17 @@ Please describe the tests that you ran to verify your changes.
 
 - [ ] Tested on actual hardware
 - [ ] ESP32 boots without errors
-- [ ] CMPS14 sensor reads correctly
-- [ ] WiFi connects
+- [ ] VE.Direct serial read works (SmartShunt data visible in Serial monitor)
+- [ ] VEDProcessor converts values correctly (V, A, W, SoC 0.0–1.0, starter V)
+- [ ] Wi-Fi connects
 - [ ] SignalK WebSocket works
-- [ ] Web UI accessible and functional
-- [ ] LCD displays correctly
-- [ ] LED indicators work
+- [ ] ESP-NOW broadcast transmits packets
+- [ ] LCD displays correctly (if connected)
 - [ ] OTA updates successful
 - [ ] No memory leaks observed
 
 **Test Configuration**:
-- ESP32 board: [e.g. SH-ESP32]
+- ESP32 board: [e.g. ESP32 Dev Module]
 - Arduino IDE: [e.g. 2.3.6]
 - ESP32 package: [e.g. 3.3.5]
 

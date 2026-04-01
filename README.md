@@ -1,3 +1,5 @@
+![Logo](docs/projectlogo.svg)
+
 # VEDirect-ESP32-SignalK Gateway
 
 [![Platform: ESP32](https://img.shields.io/badge/Platform-ESP32-blue)](https://www.espressif.com/en/sdks/esp-arduino)
@@ -7,21 +9,21 @@
 
 ESP32-based gateway that reads battery data from a [Victron SmartShunt](https://www.victronenergy.com/battery-monitors/smart-battery-shunt) via the VE.Direct text protocol and forwards it to a [SignalK](https://signalk.org) server via WebSocket/JSON and to other ESP32 devices via ESP-NOW.
 
-Reads five values from the SmartShunt: house battery voltage, current and power, state of charge, and starter battery voltage. Converts raw VE.Direct integers to SI units (V, A, W, SoC as 0–1 ratio) and sends all five values in a single SignalK delta every second.
+Reads five values from the SmartShunt: house battery voltage, current and power, state of charge, and starter battery voltage. Converts raw VE.Direct integers to SI units (V, A, W, SoC as percent) and sends all five values in a single SignalK delta every second.
 
 Uses LCD 16x2 to show battery status and network connection info. If no Wi-Fi is available, ESP-NOW broadcast continues and the LCD shows battery data.
 
 OTA updates enabled. Persistent configuration storage (NVS) and web UI planned for a future release.
 
 Developed and tested on:
-- [ESP32 Dev Module](https://www.espressif.com/en/sdks/esp-arduino)
-- [ESP32 board package](https://github.com/espressif/arduino-esp32) (3.3.5)
-- [Arduino IDE](https://www.arduino.cc/en/software/) (2.3.6)
-- SignalK Server (2.18.0)
-- Victron SmartShunt (500A/50mV)
+- [Wemos D1 R32 ESP32 development board](https://partco.fi/tuote/arduino-esp32-kehityskortti-esp-wroom-32-2526)
+- [ESP32 board package](https://github.com/espressif/arduino-esp32) (3.3.7)
+- [Arduino IDE](https://www.arduino.cc/en/software/) (2.3.8)
+- SignalK Server (2.23.0)
+- Victron SmartShunt (300 A)
 
 Integrated via ESP-NOW to:
-- [ESP32-Crowpanel-compass multi-function display](https://github.com/mkvesala/ESP32-Crowpanel-compass)
+- [ESP32-Crowpanel-compass multi-function display](https://github.com/mkvesala/ESP32-Crowpanel-compass) v2.1.0
 
 ## Purpose of the project
 
@@ -61,7 +63,7 @@ Consumes a `VEDSensor::Snapshot`, converts raw VE.Direct integers to SI units, a
 | `getHouseVoltage()` | `float` | House bank volts (V) |
 | `getHouseCurrent()` | `float` | House bank amps (A) — negative = charging |
 | `getHousePower()` | `float` | House bank watts (W) |
-| `getHouseSoc()` | `float` | House bank state of charge 0.0–1.0 |
+| `getHouseSoc()` | `float` | House bank state of charge (% 0.0–100.0) |
 | `getStartVoltage()` | `float` | Starter battery volts (V) |
 | `hasValidData()` | `bool` | True if at least one value is not NaN |
 
@@ -113,7 +115,7 @@ Each class with their primary responsibility, ownership and dependencies:
 3. Parsed label→value pairs are cached with millisecond timestamps; five labels tracked: `V`, `I`, `P`, `SOC`, `VS`
 4. Cache access is protected by `portMUX_TYPE` critical section; main loop reads via atomic `getSnapshot()`
 5. Values older than 30 seconds are treated as stale and reported as `NaN`
-6. Raw integers converted to SI units in `VEDProcessor`: mV→V, mA→A, Victron SoC tenths-of-percent→0.0–1.0 ratio
+6. Raw integers converted to SI units in `VEDProcessor`: mV→V, mA→A, Victron SoC tenths-of-percent→percent (0.0–100.0)
 
 ### SignalK communication
 
@@ -127,7 +129,7 @@ ws://<server>:<port>/signalk/v1/stream?token=<optional>
 1. `electrical.batteries.house.voltage` (V)
 2. `electrical.batteries.house.current` (A)
 3. `electrical.batteries.house.power` (W)
-4. `electrical.batteries.house.capacity.stateOfCharge` (0.0–1.0)
+4. `electrical.batteries.house.capacity.stateOfCharge` (0.0-1.0)
 5. `electrical.batteries.start.voltage` (V)
 
 Values that are `NaN` (stale or not yet received) are silently omitted from the delta. If all five are `NaN` the delta is not sent.
@@ -149,7 +151,7 @@ All ESP-NOW messages use the shared `ESPNow::ESPNowPacket` wrapper (`ESPNowHeade
   - `house_voltage` (V)
   - `house_current` (A)
   - `house_power` (W)
-  - `house_soc` (0.0–1.0)
+  - `house_soc` (% 0.0–100.0)
   - `start_voltage` (V)
 
 **Broadcast mode:** Uses broadcast address (FF:FF:FF:FF:FF:FF) — any ESP-NOW receiver on the same Wi-Fi channel can listen.

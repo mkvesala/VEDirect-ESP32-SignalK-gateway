@@ -1,0 +1,64 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 200" width="480" height="200">
+
+  <!-- Background -->
+  <rect width="480" height="200" fill="#0d1117" rx="12"/>
+
+  <!-- Device: outer bezel ring -->
+  <circle cx="100" cy="100" r="88" fill="#1c2128" stroke="#30363d" stroke-width="3"/>
+
+  <!-- Device: inner screen (round display) -->
+  <circle cx="100" cy="100" r="72" fill="#0a0f16"/>
+
+  <!-- Device: screen glow (electric cyan) -->
+  <circle cx="100" cy="100" r="72" fill="none" stroke="#00EEFF" stroke-width="1.5" opacity="0.6"/>
+
+  <!-- BATTERY SYMBOL -->
+  <!-- Main body -->
+  <rect x="42" y="70" width="116" height="62" rx="6" ry="6" fill="#041a1c" stroke="#00EEFF" stroke-width="2"/>
+  <!-- Plus terminal -->
+  <rect x="55" y="54" width="24" height="18" rx="3" ry="3" fill="#041a1c" stroke="#00EEFF" stroke-width="2"/>
+  <!-- Minus terminal -->
+  <rect x="121" y="54" width="24" height="18" rx="3" ry="3" fill="#041a1c" stroke="#00EEFF" stroke-width="2"/>
+  <!-- Terminal labels -->
+  <text x="67" y="63" text-anchor="middle" dominant-baseline="central"
+        font-family="monospace" font-size="12" fill="#00EEFF">+</text>
+  <text x="133" y="63" text-anchor="middle" dominant-baseline="central"
+        font-family="monospace" font-size="12" fill="#00EEFF">&#x2212;</text>
+  <!-- Lightning bolt -->
+  <polygon points="107,77 91,103 100,103 86,121 109,97 100,97 116,77" fill="#FFCC00"/>
+  <!-- Specs text -->
+  <text x="100" y="124" text-anchor="middle" dominant-baseline="central"
+        font-family="monospace" font-size="10" fill="#00AABB">24V &#xB7; 140Ah</text>
+
+  <!-- Text block: project name -->
+  <text x="200" y="68" font-family="monospace" font-size="20"
+        font-weight="bold" fill="#ffffff">VEDirect-ESP32-SignalK</text>
+  <text x="200" y="94" font-family="monospace" font-size="20"
+        font-weight="bold" fill="#00EEFF">Gateway</text>
+
+  <!-- Divider line -->
+  <line x1="200" y1="105" x2="460" y2="105" stroke="#30363d" stroke-width="1"/>
+
+  <!-- Subtitle lines -->
+  <text x="200" y="122" font-family="monospace" font-size="11"
+        fill="#8b949e">Marine battery monitor</text>
+  <text x="200" y="138" font-family="monospace" font-size="11"
+        fill="#8b949e">VE.Direct&#xB7;ESP32&#xB7;SignalK&#xB7;ESP-NOW</text>
+
+  <!-- Badges row -->
+  <!-- Voltage badge -->
+  <rect x="200" y="150" width="70" height="18" rx="4" fill="#041a1c" stroke="#00EEFF" stroke-width="1"/>
+  <text x="235" y="163" text-anchor="middle" font-family="monospace" font-size="10"
+        fill="#00EEFF">Voltage</text>
+
+  <!-- Current badge -->
+  <rect x="276" y="150" width="68" height="18" rx="4" fill="#041a1c" stroke="#00EEFF" stroke-width="1"/>
+  <text x="310" y="163" text-anchor="middle" font-family="monospace" font-size="10"
+        fill="#00EEFF">Current</text>
+
+  <!-- SoC badge -->
+  <rect x="350" y="150" width="46" height="18" rx="4" fill="#041a1c" stroke="#00EEFF" stroke-width="1"/>
+  <text x="373" y="163" text-anchor="middle" font-family="monospace" font-size="10"
+        fill="#00EEFF">SoC</text>
+
+</svg>

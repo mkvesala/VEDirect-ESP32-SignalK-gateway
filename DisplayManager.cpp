@@ -70,7 +70,7 @@ void DisplayManager::showBatteryData() {
              _processor.getStartVoltage());
     snprintf(bot, sizeof(bot), "%6.2fA %5.1f%%",
              _processor.getHouseCurrent(),
-             _processor.getHouseSoc() * 100.0f);
+             _processor.getHouseSoc());
 
     if (strcmp(top, _prev_top) != 0) {
         _lcd->setCursor(0, 0);
