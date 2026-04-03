@@ -1,12 +1,17 @@
 #include "VEDProcessor.h"
 #include <cmath>
 
+// === P U B L I C ===
+
+// Constructor
 VEDProcessor::VEDProcessor(VEDSensor& sensorRef)
     : _sensor(sensorRef)
     , _delta{ NAN, NAN, NAN, NAN, NAN }
 {}
 
+// Read snapshot and formulate delta
 void VEDProcessor::update() {
+
     VEDSensor::Snapshot snap;
     _sensor.getSnapshot(snap);
 
@@ -26,6 +31,7 @@ void VEDProcessor::update() {
         ? mvToV(snap.vs) : NAN;
 }
 
+// True if data is valid
 bool VEDProcessor::hasValidData() const {
     return validf(_delta.house_voltage)
         || validf(_delta.house_current)

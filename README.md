@@ -3,7 +3,7 @@
 # VEDirect-ESP32-SignalK Gateway
 
 [![Platform: ESP32](https://img.shields.io/badge/Platform-ESP32-blue)](https://www.espressif.com/en/sdks/esp-arduino)
-[![Device: Victron SmartShunt](https://img.shields.io/badge/Device-Victron%20SmartShunt-yellow)](https://www.victronenergy.com/battery-monitors/smart-battery-shunt)
+[![Sensor: Victron SmartShunt](https://img.shields.io/badge/Sensor-Victron%20SmartShunt-yellow)](https://www.victronenergy.com/battery-monitors/smart-battery-shunt)
 [![Server: SignalK](https://img.shields.io/badge/Server-SignalK-orange)](https://signalk.org)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
@@ -196,13 +196,14 @@ Using a different display can be done within `DisplayManager` while keeping its 
 
 ### Bill of materials
 
-1. ESP32 Dev Module (or compatible board with sufficient flash)
+1. Wemos R1 D32 ESP32 Dev Module
 2. Victron SmartShunt — connected via VE.Direct to UART2 RX (GPIO16)
    - VE.Direct cable: 3.3 V TTL serial, RX only (no TX needed)
    - Baud rate: 19200, 8N1
 3. LCD 16x2 module with I2C backpack, SDA=GPIO21, SCL=GPIO22
    - I2C address 0x27 or 0x3F detected automatically
 4. Wi-Fi router providing wireless LAN AP
+5. 3D printed [panel mount bezel](https://www.printables.com/model/158413-panel-mount-16x2-lcd-bezel) for LCD 16x2
 
 **Wiring summary:**
 
@@ -302,13 +303,11 @@ If your SignalK server requires authentication, provide the token in `secrets.h`
 
 ## Credits
 
-Developed and tested using:
-- ESP32 Dev Module
-- Espressif Systems esp32 board package 3.3.5 on Arduino IDE 2.3.6
-- SignalK Server 2.18.0
-- Victron SmartShunt 500A/50mV
+Software and libraries used are described in the above sections.
 
-This project started as a single-file `.ino` sketch and was refactored into the class-based architecture documented in `ESP32_gateway_pattern.md`, which also serves as the architectural reference for [CMPS14-ESP32-SignalK-gateway](https://github.com/mkvesala/CMPS14-ESP32-SignalK-gateway).
+Inspired by [VictronVEDirectArduino](https://github.com/winginitau/VictronVEDirectArduino) library.
+
+This project started as a single-file `.ino` sketch and was refactored into the class-based architecture, which also serves as the architectural reference for [CMPS14-ESP32-SignalK-gateway](https://github.com/mkvesala/CMPS14-ESP32-SignalK-gateway) and [BME280-ESP32-SignalK-gateway](https://github.com/mkvesala/BME280-ESP32-SignalK-gateway).
 
 No paid partnerships.
 

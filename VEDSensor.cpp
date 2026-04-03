@@ -1,39 +1,49 @@
 #include "VEDSensor.h"
 
-// HardwareSerial instance on UART2
+// === S T A T I C ===
+
 static HardwareSerial s_ved_serial(2);
 
+// === P U B L I C ===
+
+// Constructor
 VEDSensor::VEDSensor()
     : _mux(portMUX_INITIALIZER_UNLOCKED)
     , _cache()
 {}
 
+// Initialise, sensor read on core 0
 void VEDSensor::begin() {
+
     s_ved_serial.setRxBufferSize(RX_BUF);
     s_ved_serial.begin(VE_BAUD, SERIAL_8N1, RX_PIN, TX_PIN);
     xTaskCreatePinnedToCore(readerTask, "vedread", 4096, this, 2, nullptr, 0);
+
 }
 
+// Get thread safe snapshot of sensor data
 void VEDSensor::getSnapshot(Snapshot& out) const {
     portENTER_CRITICAL(&_mux);
     out = _cache;
     portEXIT_CRITICAL(&_mux);
 }
 
+// Cache value
 void VEDSensor::cacheSet(volatile int32_t& slot, volatile uint32_t& ts, int32_t v) {
     portENTER_CRITICAL(&_mux);
     slot = v;
-    ts   = millis();
+    ts = millis();
     portEXIT_CRITICAL(&_mux);
 }
 
-// ========= FreeRTOS task — Core 0 =========
+// FreeRTOS task for core 0
 void VEDSensor::readerTask(void* pvParameters) {
     static_cast<VEDSensor*>(pvParameters)->runReaderLoop();
 }
 
+// Reader loop for FreeRTOS task
 void VEDSensor::runReaderLoop() {
-    char   line[LINE_SIZE];
+    char line[LINE_SIZE];
     size_t idx = 0;
 
     for (;;) {
@@ -43,7 +53,7 @@ void VEDSensor::runReaderLoop() {
         }
 
         int b = s_ved_serial.read();
-        if (b < 0)    { vTaskDelay(1); continue; }
+        if (b < 0) { vTaskDelay(1); continue; }
         if (b == '\r') continue;
 
         if (b == '\n') {
@@ -54,11 +64,11 @@ void VEDSensor::runReaderLoop() {
             char* label = strtok_r(line, "\t", &save);
             if (!label || !*label) { vTaskDelay(1); continue; }
             char* val   = strtok_r(nullptr, "\t", &save);
-            if (!val   || !*val)   { vTaskDelay(1); continue; }
+            if (!val || !*val) { vTaskDelay(1); continue; }
 
             long v;
             if (val[0] == 'O') v = (val[1] == 'N') ? 1 : 0;
-            else                v = strtol(val, nullptr, 10);
+            else v = strtol(val, nullptr, 10);
 
             if      (strcmp(label, "V")   == 0) cacheSet(_cache.mv,  _cache.ts_mv,  (int32_t)v);
             else if (strcmp(label, "I")   == 0) cacheSet(_cache.ma,  _cache.ts_ma,  (int32_t)v);
@@ -70,7 +80,6 @@ void VEDSensor::runReaderLoop() {
             if (idx + 1 < LINE_SIZE) {
                 line[idx++] = (char)b;
             } else {
-                // overflow: flush rest of line
                 while (s_ved_serial.available()) {
                     int bb = s_ved_serial.read();
                     if (bb == '\n' || bb < 0) break;
