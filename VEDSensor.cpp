@@ -17,8 +17,14 @@ void VEDSensor::begin() {
 
     s_ved_serial.setRxBufferSize(RX_BUF);
     s_ved_serial.begin(VE_BAUD, SERIAL_8N1, RX_PIN, TX_PIN);
-    xTaskCreatePinnedToCore(readerTask, "vedread", 4096, this, 2, nullptr, 0);
+    xTaskCreatePinnedToCore(readerTask, "vedread", 4096, this, 2, &_reader_task_handle, 0);
 
+}
+
+// Reader task stack high water mark in bytes (ESP-IDF FreeRTOS, not vanilla FreeRTOS words)
+uint32_t VEDSensor::getReaderStackWatermark() const {
+    if (!_reader_task_handle) return 0;
+    return (uint32_t)uxTaskGetStackHighWaterMark(_reader_task_handle);
 }
 
 // Get thread safe snapshot of sensor data

@@ -35,7 +35,11 @@ private:
     static constexpr unsigned long WS_RETRY_MS          = 1999;
     static constexpr unsigned long WS_RETRY_MAX_MS      = 119993;
     static constexpr unsigned long ESPNOW_TX_MS         = 991;
-    static constexpr uint8_t       NET_STATUS_EVERY     = 10;
+    // Näyttörotaatio: 30 tikki = ~30 s sykli
+    // tikki % 30 ==  0 → net-status
+    // tikki % 30 == 15 → diagnostiikka (heap + stack)
+    // muut             → akkudata
+    static constexpr uint8_t DISPLAY_CYCLE = 30;
 
     unsigned long _last_read_ms       = 0;
     unsigned long _last_tx_ms         = 0;

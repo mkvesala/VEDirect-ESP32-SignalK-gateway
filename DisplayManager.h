@@ -13,6 +13,7 @@ public:
 
     void begin();
     void showBatteryData();
+    void showDiagData(uint32_t freeHeap, uint32_t mainStackWm, uint32_t readerStackWm);
     void showMessage(const char* l1, const char* l2);
     bool isPresent() const { return _lcd_present; }
 

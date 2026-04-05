@@ -198,7 +198,11 @@ void VEDApplication::handleDisplay(unsigned long now) {
     if ((long)(now - _last_display_ms) < (long)DISPLAY_INTERVAL_MS) return;
     _last_display_ms = now;
 
-    if (++_display_tick_ctr % NET_STATUS_EVERY == 0) {
+    const uint8_t t = ++_display_tick_ctr;
+    const uint8_t phase = t % DISPLAY_CYCLE;
+
+    if (phase == 0) {
+        // Net-status: WiFi + WebSocket
         if (_wifi_state == WifiState::OFF || _wifi_state == WifiState::FAILED) {
             _display.showMessage("NO WIFI", "ESP-NOW ONLY");
         } else if (_wifi_state == WifiState::CONNECTED) {
@@ -209,6 +213,12 @@ void VEDApplication::handleDisplay(unsigned long now) {
         } else {
             _display.showMessage("WIFI", "CONNECTING...");
         }
+    } else if (phase == DISPLAY_CYCLE / 2) {
+        // Diagnostiikka: heap + task stack high water markit tavuina
+        const uint32_t freeHeap   = ESP.getFreeHeap();
+        const uint32_t mainWm     = (uint32_t)uxTaskGetStackHighWaterMark(NULL);
+        const uint32_t readerWm   = _sensor.getReaderStackWatermark();
+        _display.showDiagData(freeHeap, mainWm, readerWm);
     } else {
         _display.showBatteryData();
     }

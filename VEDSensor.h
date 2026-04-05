@@ -31,7 +31,8 @@ public:
     explicit VEDSensor();
 
     void begin();
-    void getSnapshot(Snapshot& out) const; 
+    void getSnapshot(Snapshot& out) const;
+    uint32_t getReaderStackWatermark() const;
 
 private:
 
@@ -42,7 +43,8 @@ private:
     static constexpr size_t RX_BUF = 4096;
 
     mutable portMUX_TYPE _mux;
-    Snapshot _cache;
+    Snapshot     _cache;
+    TaskHandle_t _reader_task_handle = nullptr;
 
     void cacheSet(volatile int32_t& slot, volatile uint32_t& ts, int32_t v);
     void runReaderLoop();

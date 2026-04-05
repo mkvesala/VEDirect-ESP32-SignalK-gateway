@@ -58,6 +58,23 @@ void DisplayManager::showMessage(const char* l1, const char* l2) {
     printLines(l1, l2);
 }
 
+// ── Diagnostiikka: heap + task stack watermarkit ──────────────
+void DisplayManager::showDiagData(uint32_t freeHeap, uint32_t mainStackWm, uint32_t readerStackWm) {
+    if (!_lcd_present || !_lcd) return;
+
+    char top[17];
+    char bot[17];
+
+    // freeHeap enintään 7 merkkiä (ESP32: max ~300000 B)
+    snprintf(top, sizeof(top), "HEAP %luB", (unsigned long)freeHeap);
+
+    // watermarkit tavuina (ESP-IDF FreeRTOS palauttaa tavuja, ei sanoja)
+    snprintf(bot, sizeof(bot), "WM M:%lu R:%lu",
+             (unsigned long)mainStackWm, (unsigned long)readerStackWm);
+
+    printLines(top, bot);
+}
+
 // ── Batteriadata — päivitä vain jos sisältö muuttunut ─────────
 void DisplayManager::showBatteryData() {
     if (!_lcd_present || !_lcd) return;
