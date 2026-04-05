@@ -1,9 +1,13 @@
 #include "ESPNowBroker.h"
 
-ESPNowBroker::ESPNowBroker(VEDProcessor& processorRef)
+// === P U B L I C ===
+
+// Constructor
+ESPNowBroker::ESPNowBroker(VEDProcessor &processorRef)
     : _processor(processorRef)
 {}
 
+// Initialize
 bool ESPNowBroker::begin() {
     if (esp_now_init() != ESP_OK) return false;
 
@@ -20,6 +24,7 @@ bool ESPNowBroker::begin() {
     return true;
 }
 
+// Send data as ESP-NOW broadcast
 void ESPNowBroker::sendDelta() {
     if (!_initialized) return;
 
@@ -31,17 +36,20 @@ void ESPNowBroker::sendDelta() {
     esp_now_send(BROADCAST_ADDR, reinterpret_cast<const uint8_t*>(&pkt), sizeof(pkt));
 }
 
-void ESPNowBroker::onDataSent(const esp_now_send_info_t* /*info*/,
-                               esp_now_send_status_t /*status*/) {
-    // Tyypillisesti tyhjä tai debug-logi
+// == P R I V A T E ===
+
+// Callback for data send
+void ESPNowBroker::onDataSent(const esp_now_send_info_t*,
+                               esp_now_send_status_t) {
+    // Skeleton
 }
 
-void ESPNowBroker::onDataRecv(const esp_now_recv_info_t* /*recv_info*/,
+// Callback for data receive
+void ESPNowBroker::onDataRecv(const esp_now_recv_info_t*,
                                const uint8_t* data, int len) {
-    // VED-gateway ei odota komentoja; validoi header ja ohita
+    // Skeleton
     if (len < static_cast<int>(sizeof(ESPNow::ESPNowHeader))) return;
     ESPNow::ESPNowHeader hdr;
     memcpy(&hdr, data, sizeof(ESPNow::ESPNowHeader));
     if (hdr.magic != ESPNow::ESPNOW_MAGIC) return;
-    // Tuntematon viestiTyyppi — ohitetaan
 }

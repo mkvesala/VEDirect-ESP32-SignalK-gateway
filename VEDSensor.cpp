@@ -8,7 +8,7 @@ static HardwareSerial s_ved_serial(2);
 
 // Constructor
 VEDSensor::VEDSensor()
-    : _mux(portMUX_INITIALIZER_UNLOCKED)
+    : _spinlock(portMUX_INITIALIZER_UNLOCKED)
     , _cache()
 {}
 
@@ -29,17 +29,17 @@ uint32_t VEDSensor::getReaderStackWatermark() const {
 
 // Get thread safe snapshot of sensor data
 void VEDSensor::getSnapshot(Snapshot& out) const {
-    portENTER_CRITICAL(&_mux);
+    portENTER_CRITICAL(&_spinlock);
     out = _cache;
-    portEXIT_CRITICAL(&_mux);
+    portEXIT_CRITICAL(&_spinlock);
 }
 
 // Cache value
 void VEDSensor::cacheSet(volatile int32_t& slot, volatile uint32_t& ts, int32_t v) {
-    portENTER_CRITICAL(&_mux);
+    portENTER_CRITICAL(&_spinlock);
     slot = v;
     ts = millis();
-    portEXIT_CRITICAL(&_mux);
+    portEXIT_CRITICAL(&_spinlock);
 }
 
 // FreeRTOS task for core 0

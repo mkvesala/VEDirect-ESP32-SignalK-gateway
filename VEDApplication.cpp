@@ -1,13 +1,6 @@
 #include "VEDApplication.h"
 #include "secrets.h"
 
-// === C L A S S  V E D A P P L I C A T I O N ===
-//
-// - Class VEDApplication - responsible for orchestrating everything
-// - Init: app.begin();
-// - Loop: app.loop();
-// - Owns: VEDSensor, VEDProcessor, VEDPreferences, SignalKBroker, ESPNowBroker, DisplayManager, WebUIManager
-
 // === P U B L I C ===
 
 // Constructor
@@ -17,7 +10,7 @@ VEDApplication::VEDApplication()
     , _prefs(_processor)
     , _signalk(_processor)
     , _espnow(_processor)
-    , _display(_processor, _signalk)
+    , _display(_processor)
     , _webui(_processor, _prefs, _signalk, _display)
 {}
 
@@ -202,7 +195,7 @@ void VEDApplication::handleDisplay(unsigned long now) {
     const uint8_t phase = t % DISPLAY_CYCLE;
 
     if (phase == 0) {
-        // Net-status: WiFi + WebSocket
+        // WiFi + WebSocket
         if (_wifi_state == WifiState::OFF || _wifi_state == WifiState::FAILED) {
             _display.showMessage("NO WIFI", "ESP-NOW ONLY");
         } else if (_wifi_state == WifiState::CONNECTED) {
@@ -214,7 +207,7 @@ void VEDApplication::handleDisplay(unsigned long now) {
             _display.showMessage("WIFI", "CONNECTING...");
         }
     } else if (phase == DISPLAY_CYCLE / 2) {
-        // Diagnostiikka: heap + task stack high water markit tavuina
+        // Diagnostics
         const uint32_t freeHeap   = ESP.getFreeHeap();
         const uint32_t mainWm     = (uint32_t)uxTaskGetStackHighWaterMark(NULL);
         const uint32_t readerWm   = _sensor.getReaderStackWatermark();

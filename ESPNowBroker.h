@@ -1,23 +1,36 @@
 #pragma once
+
 #include <Arduino.h>
 #include <esp_now.h>
 #include "VEDProcessor.h"
 #include "espnow_protocol.h"
 
+// === C L A S S  E S P N O W B R O K E R ===
+//
+// - Class ESPNowBroker - responsible for ESP-NOW communication
+// - Init: _espnow.begin();
+// - Provides public API to send data as broadcast and for processing inbound commands
+// - Uses: VEDProcessor
+// - Owned by: VEDApplication
+
 class ESPNowBroker {
+
 public:
-    explicit ESPNowBroker(VEDProcessor& processorRef);
+
+    explicit ESPNowBroker(VEDProcessor &processorRef);
 
     bool begin();
     void sendDelta();
-    void processIncomingCommands() {}  // stub — VED gateway ei vastaanota komentoja
+    void processIncomingCommands() {}
 
 private:
+
     static constexpr uint8_t BROADCAST_ADDR[6] = {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF};
 
-    VEDProcessor& _processor;
-    bool          _initialized = false;
+    VEDProcessor &_processor;
+    bool _initialized = false;
 
     static void onDataSent(const esp_now_send_info_t* info, esp_now_send_status_t status);
     static void onDataRecv(const esp_now_recv_info_t* recv_info, const uint8_t* data, int len);
+    
 };

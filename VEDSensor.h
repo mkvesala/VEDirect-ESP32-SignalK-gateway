@@ -42,8 +42,8 @@ private:
     static constexpr size_t LINE_SIZE = 64;
     static constexpr size_t RX_BUF = 4096;
 
-    mutable portMUX_TYPE _mux;
-    Snapshot     _cache;
+    mutable portMUX_TYPE _spinlock;
+    Snapshot _cache;
     TaskHandle_t _reader_task_handle = nullptr;
 
     void cacheSet(volatile int32_t& slot, volatile uint32_t& ts, int32_t v);

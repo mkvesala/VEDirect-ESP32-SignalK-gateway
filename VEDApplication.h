@@ -13,6 +13,13 @@
 #include "DisplayManager.h"
 #include "WebUIManager.h"
 
+// === C L A S S  V E D A P P L I C A T I O N ===
+//
+// - Class VEDApplication - responsible for orchestrating everything
+// - Init: app.begin();
+// - Loop: app.loop();
+// - Owns: VEDSensor, VEDProcessor, VEDPreferences, SignalKBroker, ESPNowBroker, DisplayManager, WebUIManager
+
 class VEDApplication {
 
 public:
