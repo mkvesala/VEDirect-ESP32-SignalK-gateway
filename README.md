@@ -203,26 +203,19 @@ Using a different display can be done within `DisplayManager` while keeping its 
 ### Bill of materials
 
 1. Wemos D1 R32 ESP32 Dev Module
-2. Victron SmartShunt — connected via VE.Direct to UART2 RX (GPIO16)
-   - VE.Direct cable: 3.3 V TTL serial, RX only (no TX needed)
-   - Baud rate: 19200, 8N1
-3. LCD 16x2 module with I2C backpack, SDA=GPIO21, SCL=GPIO22
-   - I2C address 0x27 or 0x3F detected automatically
+2. Victron SmartShunt with VE.Direct port
+3. LCD 16x2 module with I2C backpack
 4. Wi-Fi router providing wireless LAN AP with a fixed channel
 5. 3D printed [panel mount bezel](https://www.printables.com/model/158413-panel-mount-16x2-lcd-bezel) for LCD 16x2
 6. Wiring, DC power jack, enclosure
 7. MacOS device running SignalK server in LAN
 8. Crowpanel 2.1" HMI rotary display running Crowpanel-ESP32-compass firmware
 
-**Wiring summary:**
+### Wiring
 
-| Signal | ESP32 pin | Notes |
-|--------|-----------|-------|
-| VE.Direct RX | GPIO16 (UART2 RX) | 3.3 V TTL — check SmartShunt VE.Direct port voltage |
-| LCD SDA | GPIO21 | Pull-up via LCD backpack |
-| LCD SCL | GPIO22 | Pull-up via LCD backpack |
+<img src="docs/vedschema.png" width="480">
 
-**Note: Victron SmartShunt versions use both 3.3 V and 5 V TTL levels at VE.Direct port — ALWAYS measure the level before connecting to ESP32 board and use logic level shifter if needed! **
+**Note: Victron SmartShunt versions use both 3.3 V and 5 V TTL levels at VE.Direct port — ALWAYS measure the level before connecting to ESP32 board and use logic level shifter if needed!**
 
 **No paid partnerships.**
 
