@@ -325,4 +325,4 @@ I would appreciate improvement suggestions as well as any Arduino-style ESP32/C+
 
 ## Gallery
 
-<img src="https://raw.githubusercontent.com/mkvesala/ESP32-Crowpanel-compass/main/docs/full_uml_diagram.jpeg" width="240">
+<img src="https://raw.githubusercontent.com/mkvesala/ESP32-Crowpanel-compass/main/docs/full_uml_diagram.jpeg" width="240"> <img src="docs/shunt.jpeg" width="240"> <img src="docs/lcd.jpeg" width="240"> <img src="docs/wemos.jpeg" width="240"> <img src="docs/enclosure.jpeg" width="240">
