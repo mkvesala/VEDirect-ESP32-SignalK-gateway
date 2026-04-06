@@ -39,9 +39,13 @@ This is one of my individual digital boat projects. Use at your own risk. Not fo
 
 | Release | Branch | Comment |
 |---------|--------|---------|
-| v1.0.0 | main | First versioned release. Full refactor into class-based architecture. ESP-NOW added. |
+| v1.0.0 | main | First versioned and latest release. Full refactor into class-based architecture. ESP-NOW added. |
 
 ## Classes
+
+Class diagram including the companion projects:
+
+<img src="https://raw.githubusercontent.com/mkvesala/ESP32-Crowpanel-compass/main/docs/full_uml_diagram.jpeg" width="480">
 
 ### VEDSensor
 
@@ -309,12 +313,16 @@ Software and libraries used are described in the above sections.
 
 Inspired by [VictronVEDirectArduino](https://github.com/winginitau/VictronVEDirectArduino) library.
 
-This project started as a single-file `.ino` sketch and was refactored into the class-based architecture, which also serves as the architectural reference for [CMPS14-ESP32-SignalK-gateway](https://github.com/mkvesala/CMPS14-ESP32-SignalK-gateway) and [BME280-ESP32-SignalK-gateway](https://github.com/mkvesala/BME280-ESP32-SignalK-gateway). This is a companion project also to the [Crowpanel-ESP32-compass](https://github.com/mkvesala/ESP32-Crowpanel-compass). See below diagram how the projects relate:
+This project started as a single-file `.ino` sketch and was refactored into the class-based architecture, which also serves as the architectural reference for [CMPS14-ESP32-SignalK-gateway](https://github.com/mkvesala/CMPS14-ESP32-SignalK-gateway) and [BME280-ESP32-SignalK-gateway](https://github.com/mkvesala/BME280-ESP32-SignalK-gateway). This is a companion project also to the [ESP32-Crowpanel-compass](https://github.com/mkvesala/ESP32-Crowpanel-compass). See below diagram how the projects relate:
 
-<img src="docs/full_uml_diagram.jpeg" width="480">
+<img src="https://raw.githubusercontent.com/mkvesala/ESP32-Crowpanel-compass/main/docs/full_uml_diagram.jpeg" width="480">
 
 No paid partnerships.
 
 Developed by Matti Vesala in collaboration with Claude Code. See [CONTRIBUTING](CONTRIBUTING.md) for guidelines on AI assisted development.
 
 I would appreciate improvement suggestions as well as any Arduino-style ESP32/C++ coding advice.
+
+## Gallery
+
+<img src="https://raw.githubusercontent.com/mkvesala/ESP32-Crowpanel-compass/main/docs/full_uml_diagram.jpeg" width="240">
