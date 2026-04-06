@@ -4,6 +4,37 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+- `VEDSensor::getReaderStackWatermark()` — returns the FreeRTOS reader task stack
+  high water mark in bytes (ESP-IDF FreeRTOS returns bytes, not words)
+- `VEDSensor`: task handle saved from `xTaskCreatePinnedToCore()` to support
+  stack watermark queries
+- `DisplayManager::showDiagData()` — new LCD screen showing free heap (bytes)
+  and task stack high water marks for both the main loop task and the reader task
+- LCD display rotation extended to a three-way 30-tick cycle:
+  tick % 30 == 0 → WiFi/WS net status, tick % 30 == 15 → diagnostics,
+  all other ticks → battery data
+
+### Changed
+- `VEDSensor`: `portMUX_TYPE _mux` renamed to `_spinlock` — the variable is a
+  spinlock (busy-wait, disables interrupts), not a mutex (blocking, scheduler-aware)
+- `DisplayManager`: `SignalKBroker` dependency removed; constructor signature
+  changed from `DisplayManager(VEDProcessor&, SignalKBroker&)` to
+  `DisplayManager(VEDProcessor&)` — the broker reference was injected but never
+  used, net status display is handled entirely by `VEDApplication`
+- `VEDApplication`: `NET_STATUS_EVERY` constant replaced with `DISPLAY_CYCLE = 30`
+  to support the three-screen rotation
+- `ESP32_gateway_pattern.md`: coding style section added and all code-block
+  comments translated to English
+
+### Fixed
+- Dead `SignalKBroker &_signalk` member in `DisplayManager` removed — it was
+  stored in the constructor initializer list but never accessed by any method
+
+---
+
 ## [v1.0.0] - 2026-03-08
 
 First versioned release. Complete rewrite from a single-file sketch into a
