@@ -113,10 +113,10 @@ Feature requests are welcome! Please:
 
 [README.md](README.md) for details.
 
-- Arduino IDE 2.3.6
-- ESP32 board package 3.3.5
+- Arduino IDE 2.3.8
+- ESP32 board package 3.3.7
 - Required libraries
-- SignalK server 2.18.0
+- SignalK server 2.23.0
 
 ### Hardware requirements
 

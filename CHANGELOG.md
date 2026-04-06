@@ -4,7 +4,7 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [v1.0.0] - 2026-04-10
 
 ### Added
 - `VEDSensor::getReaderStackWatermark()` — returns the FreeRTOS reader task stack
@@ -83,3 +83,5 @@ class-based architecture following the ESP32 Gateway Design Pattern.
 - Global variable spaghetti replaced by encapsulated class state
 - `String`-based SK URL, hostname and RSSI label construction removed
 - Single-file `.ino` monolith replaced by 11 separate `.h`/`.cpp` modules
+
+[1.0.0]: https://github.com/mkvesala/VEDirect-ESP32-SignalK-gateway/releases/tag/v1.0.0
