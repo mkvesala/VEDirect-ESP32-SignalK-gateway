@@ -11,4 +11,5 @@ WebUIManager::WebUIManager(
     , _prefs(prefsRef)
     , _signalk(signalkRef)
     , _display(displayRef)
+    , _server(80)
 {}

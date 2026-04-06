@@ -9,20 +9,22 @@
 // - Class VEDPreferences - responsible for NVS persistence
 // - Currently obsolete skeleton
 // - Uses: VEDProcessor
+// - Owns: Preferences
 // - Owned by: VEDApplication
 
 class VEDPreferences {
 
 public:
 
-    explicit VEDPreferences(VEDProcessor& processorRef);
+    explicit VEDPreferences(VEDProcessor &processorRef);
 
     void load() {}
     void save() {}
 
 private:
 
-    VEDProcessor& _processor;
+    VEDProcessor &_processor;
+    Preferences _prefs;
     static constexpr const char* NVS_NS = "ved";
     
 };

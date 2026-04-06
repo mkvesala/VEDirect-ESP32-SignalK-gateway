@@ -19,6 +19,7 @@
 // - Init: app.begin();
 // - Loop: app.loop();
 // - Owns: VEDSensor, VEDProcessor, VEDPreferences, SignalKBroker, ESPNowBroker, DisplayManager, WebUIManager
+// - Uses: WifiState
 
 class VEDApplication {
 
@@ -42,11 +43,7 @@ private:
     static constexpr unsigned long WS_RETRY_MS          = 1999;
     static constexpr unsigned long WS_RETRY_MAX_MS      = 119993;
     static constexpr unsigned long ESPNOW_TX_MS         = 991;
-    // Näyttörotaatio: 30 tikki = ~30 s sykli
-    // tikki % 30 ==  0 → net-status
-    // tikki % 30 == 15 → diagnostiikka (heap + stack)
-    // muut             → akkudata
-    static constexpr uint8_t DISPLAY_CYCLE = 30;
+    static constexpr uint8_t       DISPLAY_CYCLE        = 30;
 
     unsigned long _last_read_ms       = 0;
     unsigned long _last_tx_ms         = 0;
@@ -60,13 +57,13 @@ private:
 
     WifiState _wifi_state = WifiState::INIT;
 
-    VEDSensor      _sensor;
-    VEDProcessor   _processor;
+    VEDSensor _sensor;
+    VEDProcessor _processor;
     VEDPreferences _prefs;
-    SignalKBroker  _signalk;
-    ESPNowBroker   _espnow;
+    SignalKBroker _signalk;
+    ESPNowBroker _espnow;
     DisplayManager _display;
-    WebUIManager   _webui;
+    WebUIManager _webui;
 
     void handleWifi(unsigned long now);
     void handleOTA();

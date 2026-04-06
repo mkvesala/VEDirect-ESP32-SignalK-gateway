@@ -22,7 +22,7 @@ class SignalKBroker {
 
 public:
 
-    explicit SignalKBroker(VEDProcessor& processorRef);
+    explicit SignalKBroker(VEDProcessor &processorRef);
 
     bool begin();
     void handleStatus();
@@ -30,7 +30,7 @@ public:
     void closeWebsocket();
     void sendDelta();
 
-    bool isOpen() const { return _ws_open;   }
+    bool isOpen() const { return _ws_open; }
     const char* getSignalKSource() const { return _sk_source; }
 
 private:

@@ -21,11 +21,12 @@
 class DisplayManager {
 
 public:
-    explicit DisplayManager(VEDProcessor& processorRef);
+
+    explicit DisplayManager(VEDProcessor &processorRef);
 
     void begin();
     void showBatteryData();
-    void showDiagData(uint32_t freeHeap, uint32_t mainStackWm, uint32_t readerStackWm);
+    void showDiagData(uint32_t heap, uint32_t main, uint32_t reader);
     void showMessage(const char* l1, const char* l2);
     bool isPresent() const { return _lcd_present; }
 

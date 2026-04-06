@@ -18,7 +18,7 @@ class VEDProcessor {
 
 public:
 
-    explicit VEDProcessor(VEDSensor& sensorRef);
+    explicit VEDProcessor(VEDSensor &sensorRef);
 
     void update();
 
@@ -26,8 +26,8 @@ public:
 
     float getHouseVoltage() const { return _delta.house_voltage; }
     float getHouseCurrent() const { return _delta.house_current; }
-    float getHousePower()   const { return _delta.house_power;   }
-    float getHouseSoc()     const { return _delta.house_soc;     }
+    float getHousePower() const { return _delta.house_power; }
+    float getHouseSoc() const { return _delta.house_soc; }
     float getStartVoltage() const { return _delta.start_voltage; }
 
     bool hasValidData() const;
@@ -44,7 +44,7 @@ private:
 
     static float socToPercent(int32_t raw) {
         float x = raw / 10.0f;
-        if (x <   0.0f) x =   0.0f;
+        if (x < 0.0f) x = 0.0f;
         if (x > 100.0f) x = 100.0f;
         return x;
     }

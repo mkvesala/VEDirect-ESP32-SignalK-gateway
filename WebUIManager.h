@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Arduino.h>
+#include <WebServer.h>
 #include "VEDProcessor.h"
 #include "VEDPreferences.h"
 #include "SignalKBroker.h"
@@ -32,6 +33,7 @@ public:
 
 private:
 
+    WebServer _server;
     VEDProcessor &_processor;
     VEDPreferences &_prefs;
     SignalKBroker &_signalk;

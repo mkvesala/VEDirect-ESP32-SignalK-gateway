@@ -28,16 +28,16 @@ void DisplayManager::showMessage(const char* l1, const char* l2) {
 }
 
 // Diagnostics
-void DisplayManager::showDiagData(uint32_t freeHeap, uint32_t mainStackWm, uint32_t readerStackWm) {
+void DisplayManager::showDiagData(uint32_t heap, uint32_t main, uint32_t reader) {
     if (!_lcd_present || !_lcd) return;
 
     char top[17];
     char bot[17];
 
-    snprintf(top, sizeof(top), "HEAP %luB", (unsigned long)freeHeap);
+    snprintf(top, sizeof(top), "HEAP %luB", (unsigned long)heap);
 
     snprintf(bot, sizeof(bot), "WM M:%lu R:%lu",
-             (unsigned long)mainStackWm, (unsigned long)readerStackWm);
+             (unsigned long)main, (unsigned long)reader);
 
     printLines(top, bot);
 }
