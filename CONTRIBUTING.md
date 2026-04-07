@@ -79,22 +79,23 @@ Feature requests are welcome! Please:
 4. Naming:
    - Classes `PascalCase`
    - Functions/methods `camelCase`
-   - Variables `camelCase` or `snake_case` - be consistent
+   - Variables `snake_case`
+   - Static variables `s_snake_case`
+   - Private members `_snake_case`
    - Constants `UPPER_SNAKE_CASE`
    - Timers: use `_ms`, `_MS`, `_us` to indicate the units for example `NEXT_TRY_MS`
 5. Use `//` in single line comments
-6. Avoid `#DEFINE` macros, use `const` and `constexpr` where appropriate
+6. Avoid `#DEFINE` macros, use compile time `static constexpr` when possible
 7. Avoid String variables
 8. Use `delay()` in loop task *only* when absolutely necessary
 9. Minimize dynamic memory allocation - prefer stack allocation
-10. Handle I2C with care and prefer returning `bool` in methods which communicate with I2C
-11. Respect ESP32 limited resources and Core 0/Core 1 task responsibilities
+10. Respect ESP32 limited resources and Core 0/Core 1 task responsibilities
 
 ## Testing checklist
 
 * [ ] ESP32 boots without errors
 * [ ] VE.Direct serial read works (SmartShunt data visible in Serial monitor)
-* [ ] `VEDProcessor` converts values correctly (V, A, W, SoC 0.0–1.0, starter V)
+* [ ] `VEDProcessor` converts values correctly (V, A, W, SoC 0.0-100.0, starter V)
 * [ ] LCD displays battery data promptly (if present)
 * [ ] Wi-Fi connects and reports a valid IP address
 * [ ] SignalK WebSocket connection established, `ws_open` behaves well on client, server lists ESP32 source

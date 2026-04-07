@@ -55,6 +55,7 @@ Encapsulates VE.Direct serial communication. Runs a FreeRTOS reader task pinned 
 |--------|---------|---------|
 | `begin()` | `void` | Configures UART2 (RX GPIO16, 19200 baud) and starts reader task. |
 | `getSnapshot(Snapshot &out)` | `void` | Thread-safe atomic copy of the current cache. |
+| `getReaderStackWatermark()` | `uint32_t` | Get stack high watermark of reader task. |
 
 `VEDSensor::Snapshot` fields: `mv`, `ma`, `w`, `soc`, `vs` (raw int32) and matching millisecond timestamps `ts_mv` … `ts_vs`.
 
@@ -69,7 +70,7 @@ Consumes a `VEDSensor::Snapshot`, converts raw VE.Direct integers to SI units, a
 | `getHouseVoltage()` | `float` | House bank volts (V) |
 | `getHouseCurrent()` | `float` | House bank amps (A) |
 | `getHousePower()` | `float` | House bank watts (W) |
-| `getHouseSoc()` | `float` | House bank state of charge (% 0.0–100.0) |
+| `getHouseSoc()` | `float` | House bank state of charge (% 0.0-100.0) |
 | `getStartVoltage()` | `float` | Starter battery volts (V) |
 | `hasValidData()` | `bool` | True if at least one value is not NaN |
 
@@ -88,7 +89,7 @@ Consumes a `VEDSensor::Snapshot`, converts raw VE.Direct integers to SI units, a
 
 **`DisplayManager`:**
 - Owns: two `LiquidCrystal_I2C` instances (addresses 0x27 and 0x3F), selected by I2C scan on boot
-- Uses: `VEDProcessor`, `SignalKBroker`
+- Uses: `VEDProcessor`
 - Owned by: `VEDApplication`
 - Responsible for: LCD display of battery data, diagnostics and status messages
 
@@ -119,7 +120,7 @@ Consumes a `VEDSensor::Snapshot`, converts raw VE.Direct integers to SI units, a
 3. Parsed label→value pairs are cached with millisecond timestamps; five labels tracked: `V`, `I`, `P`, `SOC`, `VS`
 4. Cache access is protected by `portMUX_TYPE` spinlock's critical section; main loop reads via atomic `getSnapshot()`
 5. Values older than 30 seconds are treated as stale and reported as `NaN`
-6. Raw integers converted to SI units in `VEDProcessor`: mV→V, mA→A, Victron SoC tenths-of-percent→percent (0.0–100.0)
+6. Raw integers converted to SI units in `VEDProcessor`: mV→V, mA→A, Victron SoC tenths-of-percent→percent (0.0-100.0)
 
 ### SignalK communication
 
@@ -155,7 +156,7 @@ All ESP-NOW messages use the shared `ESPNow::ESPNowPacket` wrapper (`ESPNowHeade
   - `house_voltage` (V)
   - `house_current` (A)
   - `house_power` (W)
-  - `house_soc` (% 0.0–100.0)
+  - `house_soc` (% 0.0-100.0)
   - `start_voltage` (V)
 
 **Broadcast mode:** Uses broadcast address (FF:FF:FF:FF:FF:FF) — any ESP-NOW receiver on the same Wi-Fi channel can listen.
@@ -221,7 +222,7 @@ Using a different display can be done within `DisplayManager` while keeping its 
 
 ## Software used
 
-1. Arduino IDE 2.3.7
+1. Arduino IDE 2.3.8
 2. Espressif Systems esp32 board package 3.3.7
 3. Additional libraries installed via Library Manager:
    - ArduinoWebsockets by Gil Maimon (0.5.4)
