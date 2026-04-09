@@ -37,7 +37,7 @@ private:
 
     static constexpr unsigned long SENSOR_READ_MS       = 101;
     static constexpr unsigned long TX_INTERVAL_MS       = 997;
-    static constexpr unsigned long DISPLAY_INTERVAL_MS  = 1007;
+    static constexpr unsigned long DISPLAY_INTERVAL_MS  = 2003;
     static constexpr unsigned long WIFI_STATUS_CHECK_MS = 503;
     static constexpr unsigned long WIFI_TIMEOUT_MS      = 90001;
     static constexpr unsigned long WS_RETRY_MS          = 1999;
