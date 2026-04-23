@@ -4,6 +4,37 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [v1.1.0] - 2026-04-23
+
+WiFi AP interface hardened with three-layer security and intrusion detection.
+`espnow_protocol.h` extended with GNSS payload structs for the shared fleet protocol.
+
+### Added
+- `WiFi.softAP()` called immediately after `WiFi.mode(WIFI_AP_STA)` — secures the AP
+  interface before any client can connect (hidden SSID, WPA2 password, max 1 connection)
+- `WiFi.onEvent(ARDUINO_EVENT_WIFI_AP_STACONNECTED)` registered in `begin()` before
+  `WiFi.begin()` — callback calls `esp_wifi_deauth_sta()` immediately in the FreeRTOS
+  `arduino_events` task and sets `volatile bool _ap_intruder` flag
+- `handleAPIntruder()` in `VEDApplication` — processes the intruder flag in `loop()`
+  context; logs MAC address to Serial and shows `AP: INTRUDER!` on LCD
+- `volatile bool _ap_intruder` and `uint8_t _ap_intruder_mac[6]` private members in
+  `VEDApplication` for thread-safe event-to-loop handoff (MAC copied before flag is set)
+- `#include <esp_wifi.h>` in `VEDApplication.h` for `esp_wifi_deauth_sta()`
+- `AP_SSID` and `AP_PASS` added to `secrets.example.h`
+- `ESPNow::GnssDelta` payload struct in `espnow_protocol.h` — GNSS position, speed,
+  course (lat/lon °, SOG m/s, COG true rad, magnetic variation rad, SIV, fix type, fix OK)
+- `ESPNow::GnssData` internal struct in `espnow_protocol.h` — integer×10 representation
+  (COG 0–3599, SOG knots×10, fix_ok) with `getCogDeg()`, `getSogKnots()`, `hasFix()` helpers
+- `ESPNow::convertGnssDeltaToData()` inline converter from wire float format to internal
+  integer format
+- `ESPNowMsgType::GNSS_DELTA = 4` added to the shared protocol enum
+
+### Changed
+- `WIFI_TIMEOUT_MS` increased from 90 001 ms (90 s) to 179 999 ms (3 min) — allows more
+  time for the STA interface to associate before falling back to ESP-NOW-only mode
+
+[v1.1.0]: https://github.com/mkvesala/VEDirect-ESP32-SignalK-gateway/compare/v1.0.0...v1.1.0
+
 ## [v1.0.0] - 2026-04-10
 
 First versioned release. Complete rewrite from a single-file sketch into a

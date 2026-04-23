@@ -39,7 +39,8 @@ This is one of my individual digital boat projects. Use at your own risk. Not fo
 
 | Release | Branch | Comment |
 |---------|--------|---------|
-| v1.0.0 | main | First versioned and latest release. Full refactor into class-based architecture. ESP-NOW added. |
+| v1.1.0 | feature/AP-security | AP interface secured (hidden SSID, WPA2, intrusion detection). Wi-Fi timeout extended to 3 min. GNSS structs added to shared ESP-NOW protocol. |
+| v1.0.0 | main | First versioned release. Full refactor into class-based architecture. ESP-NOW added. |
 
 ## Classes
 
@@ -106,7 +107,7 @@ Consumes a `VEDSensor::Snapshot`, converts raw VE.Direct integers to SI units, a
 **`VEDApplication`:**
 - Owns: all subsystems as stack-allocated members
 - Uses: `WifiState`
-- Responsible for: orchestrating all subsystems, running the Wi-Fi state machine and timed loop handlers
+- Responsible for: orchestrating all subsystems, running the Wi-Fi state machine and timed loop handlers, AP interface security (hidden SSID, WPA2, intrusion detection and deauth)
 
 **`WifiState`:**
 - Global enum class for Wi-Fi connection states (INIT / CONNECTING / CONNECTED / FAILED / DISCONNECTED / OFF) just to lessen the amount of calls to WiFi library and to keep WiFi dependency only in `VEDApplication`
@@ -141,7 +142,7 @@ Values that are `NaN` (stale or not yet received) are silently omitted from the 
 
 WebSocket reconnection uses exponential backoff starting at ~2 s, doubling on each failed attempt up to a maximum of ~120 s. On successful reconnect the backoff resets to ~2 s.
 
-Wi-Fi connection is attempted for ~90 s on boot. If it times out or fails, the device continues running with ESP-NOW only; SignalK and OTA are unavailable until the next reboot.
+Wi-Fi connection is attempted for ~3 min on boot. If it times out or fails, the device continues running with ESP-NOW only; SignalK and OTA are unavailable until the next reboot.
 
 **Please refer to Security section of this file.**
 
@@ -161,7 +162,7 @@ All ESP-NOW messages use the shared `ESPNow::ESPNowPacket` wrapper (`ESPNowHeade
 
 **Broadcast mode:** Uses broadcast address (FF:FF:FF:FF:FF:FF) — any ESP-NOW receiver on the same Wi-Fi channel can listen.
 
-**WiFi coexistence:** ESP-NOW operates alongside Wi-Fi (`WIFI_AP_STA` mode). Both SignalK WebSocket and ESP-NOW broadcast function simultaneously.
+**WiFi coexistence:** ESP-NOW operates alongside Wi-Fi (`WIFI_AP_STA` mode). Both SignalK WebSocket and ESP-NOW broadcast function simultaneously. The AP interface required by `WIFI_AP_STA` is secured — see Security section.
 
 **Note: ESP-NOW receivers must be on the same Wi-Fi channel as this device. The simplest approach is to connect both devices to the same Wi-Fi network with a fixed channel.**
 
@@ -241,13 +242,15 @@ Using a different display can be done within `DisplayManager` while keeping its 
 2. Alternatively, download the code as a zip
 3. Set up your credentials in `secrets.h` (first by renaming `secrets.example.h` to `secrets.h`)
    ```cpp
-   inline constexpr const char* WIFI_SSID = "your_wifi_ssid_here";
-   inline constexpr const char* WIFI_PASS = "your_wifi_password_here";
-   inline constexpr const char* SK_HOST   = "your_signalk_address_here";
-   inline constexpr uint16_t    SK_PORT   = 3000; // or whatever your port is
-   inline constexpr const char* SK_TOKEN  = "your_token_here";
-   inline constexpr const char* OTA_PASS  = "your_ota_password_here";
-   inline constexpr const char* DEFAULT_WEB_PASSWORD  = "your_default_web_password_here";
+   inline constexpr const char* WIFI_SSID            = "your_wifi_ssid_here";
+   inline constexpr const char* WIFI_PASS            = "your_wifi_password_here";
+   inline constexpr const char* SK_HOST              = "your_signalk_address_here";
+   inline constexpr uint16_t    SK_PORT              = 3000; // or whatever your port is
+   inline constexpr const char* SK_TOKEN             = "your_token_here";
+   inline constexpr const char* OTA_PASS             = "your_ota_password_here";
+   inline constexpr const char* DEFAULT_WEB_PASSWORD = "your_default_web_password_here";
+   inline constexpr const char* AP_SSID              = "your_ap_ssid_here";    // hidden, name not critical
+   inline constexpr const char* AP_PASS              = "your_ap_password_here"; // min 8 chars (WPA2)
    ```
 4. **Make sure that `secrets.h` is listed in your `.gitignore` file**
 5. Connect the SmartShunt VE.Direct TX to GPIO16 (RX) and optionally an LCD to the I2C pins
@@ -270,7 +273,19 @@ Check [issues](https://github.com/mkvesala/VEDirect-ESP32-SignalK-gateway/issues
 
 ### Current state
 
-In v1.0.0 the web UI is not yet implemented — there are no HTTP endpoints exposed. The device only opens an outbound WebSocket connection to the SignalK server and sends ESP-NOW broadcasts.
+The web UI is not yet implemented — there are no HTTP endpoints exposed. The device only opens an outbound WebSocket connection to the SignalK server and sends ESP-NOW broadcasts.
+
+### AP interface
+
+`WIFI_AP_STA` mode is required for ESP-NOW and Wi-Fi to operate simultaneously. This opens an AP interface on the ESP32 that is not intended for external connections. It is hardened with three lines of defence:
+
+| Line | Mechanism |
+|------|-----------|
+| **1. Hidden SSID** | `ssid_hidden=1` — the network is not advertised |
+| **2. WPA2 password** | `AP_PASS` from `secrets.h` (min 8 characters) — connection is blocked without the password |
+| **3. Immediate deauth + alert** | If a client connects despite the above, it is kicked immediately via `esp_wifi_deauth_sta()` in the WiFi event callback. The MAC address is logged to Serial and shown on the LCD. |
+
+Set `AP_SSID` and `AP_PASS` in `secrets.h`. The SSID name is not critical since it is hidden — use something non-identifying. The password must be at least 8 characters (WPA2 requirement).
 
 ### SignalK token
 
