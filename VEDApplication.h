@@ -4,6 +4,7 @@
 #include <Wire.h>
 #include <WiFi.h>
 #include <ArduinoOTA.h>
+#include <esp_wifi.h>
 #include "WifiState.h"
 #include "VEDSensor.h"
 #include "VEDProcessor.h"
@@ -39,7 +40,7 @@ private:
     static constexpr unsigned long TX_INTERVAL_MS       = 997;
     static constexpr unsigned long DISPLAY_INTERVAL_MS  = 2003;
     static constexpr unsigned long WIFI_STATUS_CHECK_MS = 503;
-    static constexpr unsigned long WIFI_TIMEOUT_MS      = 90001;
+    static constexpr unsigned long WIFI_TIMEOUT_MS      = 179999;
     static constexpr unsigned long WS_RETRY_MS          = 1999;
     static constexpr unsigned long WS_RETRY_MAX_MS      = 119993;
     static constexpr unsigned long ESPNOW_TX_MS         = 991;
@@ -57,6 +58,10 @@ private:
 
     WifiState _wifi_state = WifiState::INIT;
 
+    // AP intruder detection — written in WiFi event callback, read in loop()
+    volatile bool _ap_intruder        = false;
+    uint8_t       _ap_intruder_mac[6] = {};
+
     VEDSensor _sensor;
     VEDProcessor _processor;
     VEDPreferences _prefs;
@@ -66,6 +71,7 @@ private:
     WebUIManager _webui;
 
     void handleWifi(unsigned long now);
+    void handleAPIntruder();
     void handleOTA();
     void handleWebUI();
     void handleWebsocket(unsigned long now);
