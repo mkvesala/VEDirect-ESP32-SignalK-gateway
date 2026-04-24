@@ -322,7 +322,7 @@ Software and libraries used are described in the above sections.
 
 Inspired by [VictronVEDirectArduino](https://github.com/winginitau/VictronVEDirectArduino) library.
 
-This project started as a single-file `.ino` sketch and was refactored into the class-based architecture, which also serves as the architectural reference for [CMPS14-ESP32-SignalK-gateway](https://github.com/mkvesala/CMPS14-ESP32-SignalK-gateway) and [BME280-ESP32-SignalK-gateway](https://github.com/mkvesala/BME280-ESP32-SignalK-gateway). This is a companion project also to the [ESP32-Crowpanel-compass](https://github.com/mkvesala/ESP32-Crowpanel-compass). See below diagram how the projects relate:
+This project started as a single-file `.ino` sketch and was refactored into the class-based architecture, which also serves as the architectural reference for [CMPS14-ESP32-SignalK-gateway](https://github.com/mkvesala/CMPS14-ESP32-SignalK-gateway), [UBLOX-ESP32-SignalK-gateway](https://github.com/mkvesala/UBLOX-ESP32-SignalK-gateway) and [BME280-ESP32-SignalK-gateway](https://github.com/mkvesala/BME280-ESP32-SignalK-gateway). This is a companion project also to the [ESP32-Crowpanel-compass](https://github.com/mkvesala/ESP32-Crowpanel-compass). See below diagram how the projects relate:
 
 <img src="https://raw.githubusercontent.com/mkvesala/ESP32-Crowpanel-compass/main/docs/full_uml_diagram.jpeg" width="480">
 
