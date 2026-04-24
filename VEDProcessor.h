@@ -34,7 +34,7 @@ public:
 
 private:
 
-    static constexpr uint32_t STALE_MS = 30000;
+    static constexpr uint32_t STALE_MS = 300000;
 
     VEDSensor &_sensor;
     ESPNow::BatteryDelta _delta;
