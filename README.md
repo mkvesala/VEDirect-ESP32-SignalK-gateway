@@ -328,7 +328,7 @@ This project started as a single-file `.ino` sketch and was refactored into the 
 
 No paid partnerships.
 
-Developed by Matti Vesala in collaboration with Claude Code. See [CONTRIBUTING](CONTRIBUTING.md) for guidelines on AI assisted development.
+Developed by Matti Vesala in collaboration with Claude Code. See [CONTRIBUTING](CONTRIBUTING.md) for guidelines on development.
 
 I would appreciate improvement suggestions as well as any Arduino-style ESP32/C++ coding advice.
 
