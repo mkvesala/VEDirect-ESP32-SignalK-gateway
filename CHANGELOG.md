@@ -4,7 +4,7 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [v1.1.0] - 2026-04-23
+## [v1.1.0] - 2026-05-09
 
 WiFi AP interface hardened with three-layer security and intrusion detection.
 `espnow_protocol.h` extended with GNSS payload structs for the shared fleet protocol.
@@ -28,6 +28,12 @@ WiFi AP interface hardened with three-layer security and intrusion detection.
 - `ESPNow::convertGnssDeltaToData()` inline converter from wire float format to internal
   integer format
 - `ESPNowMsgType::GNSS_DELTA = 4` added to the shared protocol enum
+
+### Fixed
+- `initWifiServices()` now guarded by `_wifi_services_initialized` flag — prevents
+  `ArduinoOTA.begin()` and `WebServer` route registration from running more than once
+  per power cycle. Previously each WiFi reconnect re-registered mDNS and leaked a UDP
+  socket and duplicate route handlers, causing the heap to shrink steadily until crash
 
 ### Changed
 - `WIFI_TIMEOUT_MS` increased from 90 001 ms (90 s) to 179 999 ms (3 min) — allows more

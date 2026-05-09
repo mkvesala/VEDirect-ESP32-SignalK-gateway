@@ -46,6 +46,8 @@ private:
     static constexpr unsigned long ESPNOW_TX_MS         = 991;
     static constexpr uint8_t       DISPLAY_CYCLE        = 30;
 
+    bool          _wifi_services_initialized = false;
+
     unsigned long _last_read_ms       = 0;
     unsigned long _last_tx_ms         = 0;
     unsigned long _last_display_ms    = 0;

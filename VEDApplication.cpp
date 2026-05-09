@@ -123,8 +123,10 @@ void VEDApplication::handleWifi(unsigned long now) {
     }
 }
 
-// WiFi dependent stuff
+// WiFi dependent stuff — guarded so OTA and WebServer routes are registered exactly once
 void VEDApplication::initWifiServices() {
+    if (_wifi_services_initialized) return;
+    _wifi_services_initialized = true;
 
     _signalk.begin();
 
