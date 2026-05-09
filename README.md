@@ -19,13 +19,13 @@ OTA updates enabled. Persistent configuration storage (NVS) and web UI reserved 
 
 Developed and tested on:
 - [Wemos D1 R32 ESP32 development board](https://partco.fi/tuote/arduino-esp32-kehityskortti-esp-wroom-32-2526)
-- [ESP32 board package](https://github.com/espressif/arduino-esp32) (3.3.7)
+- [ESP32 board package](https://github.com/espressif/arduino-esp32) (3.3.8)
 - [Arduino IDE](https://www.arduino.cc/en/software/) (2.3.8)
-- SignalK Server (2.23.0)
+- SignalK Server (2.26.0)
 - Victron SmartShunt (300 A)
 
 Integrated via ESP-NOW to:
-- [ESP32-Crowpanel-compass multi-function display](https://github.com/mkvesala/ESP32-Crowpanel-compass) v2.1.0
+- [ESP32-Crowpanel-compass multi-function display](https://github.com/mkvesala/ESP32-Crowpanel-compass) v4.0.0
 
 ## Purpose of the project
 
@@ -224,14 +224,14 @@ Using a different display can be done within `DisplayManager` while keeping its 
 ## Software used
 
 1. Arduino IDE 2.3.8
-2. Espressif Systems esp32 board package 3.3.7
+2. Espressif Systems esp32 board package 3.3.8
 3. Additional libraries installed via Library Manager:
    - ArduinoWebsockets by Gil Maimon (0.5.4)
    - ArduinoJson by Benoit Blanchon (7.4.3)
    - LiquidCrystal_I2C by Frank de Brabander (1.1.2)
    - ArduinoOTA (included in ESP32 board package)
-4. Crowpanel-ESP32-compass firmware (v2.1.0)
-5. SignalK server (2.23.0)
+4. Crowpanel-ESP32-compass firmware (v4.0.0)
+5. SignalK server (2.26.0)
 
 ## Installation
 
