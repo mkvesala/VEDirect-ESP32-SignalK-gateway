@@ -45,6 +45,8 @@ private:
     static constexpr unsigned long WS_RETRY_MAX_MS      = 119993;
     static constexpr unsigned long ESPNOW_TX_MS         = 991;
     static constexpr uint8_t       DISPLAY_CYCLE        = 30;
+    static constexpr unsigned long WS_WATCHDOG_MS       = 599983UL;  // ~10 min
+    static constexpr unsigned long LOOP_WATCHDOG_US     = 99991UL;   // ~100 ms
 
     bool          _wifi_services_initialized = false;
 
@@ -57,6 +59,10 @@ private:
     unsigned long _next_ws_try_ms     = 0;
     unsigned long _expn_retry_ms      = WS_RETRY_MS;
     uint8_t       _display_tick_ctr   = 0;
+
+    unsigned long _last_ws_activity_ms = 0;    // network watchdog: last WS open; 0 = never
+    float         _loop_avg_us         = 0.0f;
+    bool          _monitoring          = false;
 
     WifiState _wifi_state = WifiState::INIT;
 
@@ -81,6 +87,8 @@ private:
     void handleSignalK(unsigned long now);
     void handleESPNow(unsigned long now);
     void handleDisplay(unsigned long now);
+    void handleWatchdog(unsigned long now);
+    void monitorLoopRuntime(unsigned long us);
 
     void initWifiServices();
 

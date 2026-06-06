@@ -60,6 +60,7 @@ void VEDApplication::begin() {
 // Loop
 void VEDApplication::loop() {
 
+    const unsigned long loop_start = micros();
     const unsigned long now = millis();
 
     this->handleWifi(now);
@@ -67,10 +68,13 @@ void VEDApplication::loop() {
     this->handleOTA();
     this->handleWebUI();
     this->handleWebsocket(now);
+    this->handleWatchdog(now);
     this->handleSensorRead(now);
     this->handleSignalK(now);
     this->handleESPNow(now);
     this->handleDisplay(now);
+
+    this->monitorLoopRuntime(micros() - loop_start);
 
 }
 
@@ -184,12 +188,16 @@ void VEDApplication::handleWebsocket(unsigned long now) {
     if (_wifi_state != WifiState::CONNECTED) return;
     _signalk.handleStatus();
 
-    if (!_signalk.isOpen() && (long)(now - _next_ws_try_ms) >= 0) {
-        _signalk.connectWebsocket();
-        _next_ws_try_ms = now + _expn_retry_ms;
-        _expn_retry_ms  = min(_expn_retry_ms * 2UL, WS_RETRY_MAX_MS);
+    if (_signalk.isOpen()) {
+        _last_ws_activity_ms = now;    // feed network watchdog
+        _expn_retry_ms = WS_RETRY_MS;  // reset backoff only when already open
+    } else {
+        if ((long)(now - _next_ws_try_ms) >= 0) {
+            _signalk.connectWebsocket();
+            _next_ws_try_ms = now + _expn_retry_ms;
+            _expn_retry_ms  = min(_expn_retry_ms * 2UL, WS_RETRY_MAX_MS);
+        }
     }
-    if (_signalk.isOpen()) _expn_retry_ms = WS_RETRY_MS;
 }
 
 // Read sensor
@@ -235,6 +243,14 @@ void VEDApplication::handleDisplay(unsigned long now) {
         } else {
             _display.showMessage("WIFI", "CONNECTING...");
         }
+    } else if (phase == DISPLAY_CYCLE / 4) {
+        // Loop runtime + uptime
+        char l1[17], l2[17];
+        uint32_t avg_us = _monitoring ? (uint32_t)_loop_avg_us : 0;
+        unsigned long s = millis() / 1000;
+        snprintf(l1, sizeof(l1), "LOOP %lu us", avg_us);
+        snprintf(l2, sizeof(l2), "UP %lu:%02lu:%02lu", s / 3600, (s / 60) % 60, s % 60);
+        _display.showMessage(l1, l2);
     } else if (phase == DISPLAY_CYCLE / 2) {
         // Diagnostics
         const uint32_t freeHeap   = ESP.getFreeHeap();
@@ -243,6 +259,33 @@ void VEDApplication::handleDisplay(unsigned long now) {
         _display.showDiagData(freeHeap, mainWm, readerWm);
     } else {
         _display.showBatteryData();
+    }
+}
+
+// Watchdog — restart on bloated loop runtime, or if WiFi up but TCP/IP stack silently dead
+void VEDApplication::handleWatchdog(unsigned long now) {
+    if (_monitoring && _loop_avg_us > LOOP_WATCHDOG_US) {
+        _display.showMessage("LOOP WATCHDOG", "RESTARTING...");
+        delay(1999);
+        ESP.restart();
+    }
+    if (_wifi_state != WifiState::CONNECTED) return;
+    if (_signalk.isOpen()) return;
+    if (_last_ws_activity_ms == 0) return;
+    if ((long)(now - _last_ws_activity_ms) < (long)WS_WATCHDOG_MS) return;
+    _display.showMessage("WATCHDOG", "RESTARTING...");
+    delay(1999);
+    ESP.restart();
+}
+
+// EMA loop runtime monitor — alpha=0.01, initialised on first call
+// Called at END of loop() so watchdog sees previous iteration's EMA, not current
+void VEDApplication::monitorLoopRuntime(unsigned long us) {
+    if (!_monitoring) {
+        _loop_avg_us = us;
+        _monitoring = true;
+    } else {
+        _loop_avg_us = 0.01f * us + 0.99f * _loop_avg_us;
     }
 }
 

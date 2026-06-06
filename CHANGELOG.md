@@ -8,6 +8,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 WiFi AP interface hardened with three-layer security and intrusion detection.
 `espnow_protocol.h` extended with GNSS payload structs for the shared fleet protocol.
+Watchdog added with loop runtime EMA monitor and network watchdog.
+Loop runtime average and system uptime added to the LCD display rotation.
 
 ### Added
 - `WiFi.softAP()` called immediately after `WiFi.mode(WIFI_AP_STA)` — secures the AP
@@ -29,7 +31,25 @@ WiFi AP interface hardened with three-layer security and intrusion detection.
   integer format
 - `ESPNowMsgType::GNSS_DELTA = 4` added to the shared protocol enum
 
+- `handleWatchdog()` in `VEDApplication` — two independent checks per loop iteration:
+  loop runtime EMA watchdog (WiFi-state-independent) fires first; network watchdog
+  restarts if WiFi layer-2 is up but WebSocket has been closed for `WS_WATCHDOG_MS`
+  (~10 min) after a prior successful session (`_last_ws_activity_ms != 0`)
+- `monitorLoopRuntime()` in `VEDApplication` — EMA (alpha = 0.01) of loop duration
+  in µs; initialised on first call, feeds `_loop_avg_us` and sets `_monitoring` flag
+- `WS_WATCHDOG_MS = 599983UL` and `LOOP_WATCHDOG_US = 99991UL` timing constants in
+  `VEDApplication` for watchdog thresholds (~10 min and ~100 ms respectively)
+- `_last_ws_activity_ms`, `_loop_avg_us`, `_monitoring` private members in
+  `VEDApplication` — shared state for watchdog and runtime monitor
+- LCD display phase for loop runtime avg and system uptime — shows `LOOP X us` and
+  `UP H:MM:SS` at display cycle tick 7 (~14 s into each 60 s rotation)
+
 ### Fixed
+- `handleWebsocket()` restructured from two separate `if` blocks to a single
+  `if/else` — the previous structure caused `connectWebsocket()` (a blocking TCP
+  call) to fire every ~2 s without exponential backoff accumulating, stuttering
+  SignalK and ESP-NOW transmissions; `_last_ws_activity_ms` is now fed only in the
+  `isOpen()` branch, not in the same iteration as the connect attempt
 - `initWifiServices()` now guarded by `_wifi_services_initialized` flag — prevents
   `ArduinoOTA.begin()` and `WebServer` route registration from running more than once
   per power cycle. Previously each WiFi reconnect re-registered mDNS and leaked a UDP
