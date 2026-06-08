@@ -37,7 +37,7 @@ private:
     static constexpr uint8_t I2C_SCL = 22;
 
     static constexpr unsigned long SENSOR_READ_MS       = 101;
-    static constexpr unsigned long TX_INTERVAL_MS       = 997;
+    static constexpr unsigned long TX_INTERVAL_MS       = 499;
     static constexpr unsigned long DISPLAY_INTERVAL_MS  = 2003;
     static constexpr unsigned long WIFI_STATUS_CHECK_MS = 503;
     static constexpr unsigned long WIFI_TIMEOUT_MS      = 179999;
@@ -83,6 +83,7 @@ private:
     void handleDisplay(unsigned long now);
 
     void initWifiServices();
+    void applyStaticIP();
 
     static const char* rssiLabel(int8_t rssi);
 };

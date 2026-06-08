@@ -111,6 +111,8 @@ void SignalKBroker::onEvent(WebsocketsEvent event, const String& /*data*/) {
         case WebsocketsEvent::GotPing:
             _ws.pong();
             break;
+        case WebsocketsEvent::GotPong:
+            break;
         default:
             break;
     }

@@ -28,16 +28,32 @@ WiFi AP interface hardened with three-layer security and intrusion detection.
 - `ESPNow::convertGnssDeltaToData()` inline converter from wire float format to internal
   integer format
 - `ESPNowMsgType::GNSS_DELTA = 4` added to the shared protocol enum
+- `applyStaticIP()` in `VEDApplication` — configures a fixed IP via `WiFi.config()`
+  from `WIFI_STATIC_IP` / `WIFI_GATEWAY` / `WIFI_SUBNET` (parsed with
+  `IPAddress::fromString()`); applied before every `WiFi.begin()` — both the initial
+  connect in `begin()` and the WiFi-drop "hard reset" in `handleWifi()` — so the
+  device address no longer depends on the router's DHCP lease table
+- `WIFI_STATIC_IP`, `WIFI_GATEWAY`, `WIFI_SUBNET` added to `secrets.example.h`
 
 ### Fixed
 - `initWifiServices()` now guarded by `_wifi_services_initialized` flag — prevents
   `ArduinoOTA.begin()` and `WebServer` route registration from running more than once
   per power cycle. Previously each WiFi reconnect re-registered mDNS and leaked a UDP
   socket and duplicate route handlers, causing the heap to shrink steadily until crash
+- WiFi-drop recovery in `handleWifi()` now closes the SignalK websocket
+  (`_signalk.closeWebsocket()`) before reconnecting, and performs a harder reset
+  (`WiFi.disconnect(true)` + brief `delay()` + `WiFi.setSleep(false)`) — addresses
+  network freezes (e.g. caused by macOS power-saving on the SignalK server side)
+  that previously left the connection stuck until a manual reboot
+- `_next_ws_try_ms` now resets to the current time on a successful WiFi reconnect —
+  previously a stale exponential-backoff timestamp from before the WiFi drop could
+  delay SignalK websocket reconnection by up to ~2 minutes after WiFi recovered
 
 ### Changed
 - `WIFI_TIMEOUT_MS` increased from 90 001 ms (90 s) to 179 999 ms (3 min) — allows more
   time for the STA interface to associate before falling back to ESP-NOW-only mode
+- `TX_INTERVAL_MS` reduced from 997 ms to 499 ms — sends SignalK delta updates to the
+  server twice as often
 
 [v1.1.0]: https://github.com/mkvesala/VEDirect-ESP32-SignalK-gateway/compare/v1.0.0...v1.1.0
 

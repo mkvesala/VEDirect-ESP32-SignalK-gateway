@@ -39,7 +39,7 @@ This is one of my individual digital boat projects. Use at your own risk. Not fo
 
 | Release | Branch | Comment |
 |---------|--------|---------|
-| v1.1.0 | feature/AP-security | AP interface secured (hidden SSID, WPA2, intrusion detection). Wi-Fi timeout extended to 3 min. GNSS structs added to shared ESP-NOW protocol. |
+| v1.1.0 | feature/AP-security | AP interface secured (hidden SSID, WPA2, intrusion detection). Wi-Fi timeout extended to 3 min, static IP support and hardened reconnect/recovery added. GNSS structs added to shared ESP-NOW protocol. |
 | v1.0.0 | main | First versioned release. Full refactor into class-based architecture. ESP-NOW added. |
 
 ## Classes
@@ -144,6 +144,8 @@ WebSocket reconnection uses exponential backoff starting at ~2 s, doubling on ea
 
 Wi-Fi connection is attempted for ~3 min on boot. If it times out or fails, the device continues running with ESP-NOW only; SignalK and OTA are unavailable until the next reboot.
 
+The device connects with a static IP address configured via `WiFi.config()` from `WIFI_STATIC_IP` / `WIFI_GATEWAY` / `WIFI_SUBNET` in `secrets.h`, rather than relying on the router's DHCP lease table — keep the chosen address outside the router's DHCP pool. If Wi-Fi drops, the connection is rebuilt with a hard reset (`WiFi.disconnect(true)` + reapplied static IP and sleep settings) and the SignalK WebSocket is reopened automatically.
+
 **Please refer to Security section of this file.**
 
 ### ESP-NOW communication
@@ -244,6 +246,9 @@ Using a different display can be done within `DisplayManager` while keeping its 
    ```cpp
    inline constexpr const char* WIFI_SSID            = "your_wifi_ssid_here";
    inline constexpr const char* WIFI_PASS            = "your_wifi_password_here";
+   inline constexpr const char* WIFI_STATIC_IP       = "192.168.1.50";   // keep outside the router's DHCP pool
+   inline constexpr const char* WIFI_GATEWAY         = "192.168.1.1";
+   inline constexpr const char* WIFI_SUBNET          = "255.255.255.0";
    inline constexpr const char* SK_HOST              = "your_signalk_address_here";
    inline constexpr uint16_t    SK_PORT              = 3000; // or whatever your port is
    inline constexpr const char* SK_TOKEN             = "your_token_here";
