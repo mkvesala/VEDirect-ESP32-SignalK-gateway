@@ -29,6 +29,8 @@ public:
     bool connectWebsocket();
     void closeWebsocket();
     void sendDelta();
+    void ping();
+    bool isStale(unsigned long now) const;
 
     bool isOpen() const { return _ws_open; }
     const char* getSignalKSource() const { return _sk_source; }
@@ -43,6 +45,10 @@ private:
     websockets::WebsocketsClient _ws;
     StaticJsonDocument<512> _delta_doc;
     StaticJsonDocument<256> _incoming_doc;
+
+    // Liveness — half-open TCP detection via client ping / server pong
+    static constexpr unsigned long PONG_TIMEOUT_MS = 29989UL;  // ~30 s w/o pong -> stale
+    unsigned long _last_pong_ms = 0;   // millis() of last GotPong / open; 0 = not connected
 
     bool _ws_open = false;
     char _sk_url[SK_URL_SIZE]{};

@@ -199,10 +199,17 @@ void VEDApplication::handleWebUI() {
 // Websocket
 void VEDApplication::handleWebsocket(unsigned long now) {
     if (_wifi_state != WifiState::CONNECTED) return;
-    _signalk.handleStatus();
+    _signalk.handleStatus();   // poll() — also delivers the GotPong event that feeds isStale()
 
     if (_signalk.isOpen()) {
         _expn_retry_ms = WS_RETRY_MS;
+        if ((long)(now - _last_ping_ms) >= (long)WS_PING_MS) {
+            _signalk.ping();
+            _last_ping_ms = now;
+        }
+        if (_signalk.isStale(now)) {     // half-open TCP: open but no pong within timeout
+            _signalk.closeWebsocket();   // next iterations reconnect via existing backoff
+        }
     } else if ((long)(now - _next_ws_try_ms) >= 0) {
         _signalk.connectWebsocket();
         _next_ws_try_ms = now + _expn_retry_ms;

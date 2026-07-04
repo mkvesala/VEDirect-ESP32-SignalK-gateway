@@ -4,12 +4,26 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [v1.1.0] - 2026-05-09
+## [v1.1.0] - 2026-07-04
 
 WiFi AP interface hardened with three-layer security and intrusion detection.
 `espnow_protocol.h` extended with GNSS payload structs for the shared fleet protocol.
+Active WebSocket ping/pong liveness detects a silently-dead SignalK server and heals
+it with a graceful, transport-only reconnect (no reboot).
 
 ### Added
+- `SignalKBroker::ping()` — sends a client-initiated WebSocket ping frame; the `GotPong`
+  event refreshes `_last_pong_ms`. `handleWebsocket()` pings every `WS_PING_MS` (~10 s)
+  while the socket is open
+- `SignalKBroker::isStale()` — reports a half-open connection where `isOpen()` still
+  returns `true` but no pong has arrived within `PONG_TIMEOUT_MS` (~30 s); `handleWebsocket()`
+  then calls `closeWebsocket()` and lets the existing exponential backoff reconnect,
+  recovering from a silently-dead SignalK server (e.g. macOS host power-saving) without
+  dropping WiFi or rebooting
+- `WS_PING_MS` (`VEDApplication`, 9 973 ms) and `PONG_TIMEOUT_MS` (`SignalKBroker`,
+  29 989 ms) liveness timing constants, plus `_last_ping_ms` / `_last_pong_ms` timestamp
+  members — the ping cadence stays below the pong timeout so ~2–3 lost pongs are required
+  before the link is judged dead
 - `WiFi.softAP()` called immediately after `WiFi.mode(WIFI_AP_STA)` — secures the AP
   interface before any client can connect (hidden SSID, WPA2 password, max 1 connection)
 - `WiFi.onEvent(ARDUINO_EVENT_WIFI_AP_STACONNECTED)` registered in `begin()` before
@@ -50,6 +64,10 @@ WiFi AP interface hardened with three-layer security and intrusion detection.
   delay SignalK websocket reconnection by up to ~2 minutes after WiFi recovered
 
 ### Changed
+- Liveness recovery is transport-only — a silently-dead connection is now healed by a
+  graceful WebSocket reconnect instead of `ESP.restart()`; this supersedes the reverted
+  `isOpen()`-keyed reboot watchdog (`a2f6566`), which could not detect a half-open TCP
+  connection and would reboot a healthy device during transient server outages
 - `WIFI_TIMEOUT_MS` increased from 90 001 ms (90 s) to 179 999 ms (3 min) — allows more
   time for the STA interface to associate before falling back to ESP-NOW-only mode
 - `TX_INTERVAL_MS` reduced from 997 ms to 499 ms — sends SignalK delta updates to the

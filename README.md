@@ -39,7 +39,7 @@ This is one of my individual digital boat projects. Use at your own risk. Not fo
 
 | Release | Branch | Comment |
 |---------|--------|---------|
-| v1.1.0 | feature/AP-security | AP interface secured (hidden SSID, WPA2, intrusion detection). Wi-Fi timeout extended to 3 min, static IP support and hardened reconnect/recovery added. GNSS structs added to shared ESP-NOW protocol. |
+| v1.1.0 | feature/AP-security | AP interface secured (hidden SSID, WPA2, intrusion detection). Wi-Fi timeout extended to 3 min, static IP support and hardened reconnect/recovery added. Active WebSocket ping/pong liveness with graceful transport-only reconnect. GNSS structs added to shared ESP-NOW protocol. |
 | v1.0.0 | main | First versioned release. Full refactor into class-based architecture. ESP-NOW added. |
 
 ## Classes
@@ -141,6 +141,8 @@ ws://<server>:<port>/signalk/v1/stream?token=<optional>
 Values that are `NaN` (stale or not yet received) are silently omitted from the delta. If all five are `NaN` the delta is not sent.
 
 WebSocket reconnection uses exponential backoff starting at ~2 s, doubling on each failed attempt up to a maximum of ~120 s. On successful reconnect the backoff resets to ~2 s.
+
+**Connection liveness (active ping/pong):** while the socket is open the device sends a WebSocket ping every ~10 s and tracks the server's pong. If no pong arrives within ~30 s the connection is considered dead — even when `isOpen()` still reports `true`, as happens with a half-open TCP connection (e.g. the SignalK host freezing the link under power-saving) — and the socket is closed so the exponential back-off reconnects it. Recovery is transport-only: the device does **not** reboot, so ESP-NOW, the LCD and uptime are unaffected.
 
 Wi-Fi connection is attempted for ~3 min on boot. If it times out or fails, the device continues running with ESP-NOW only; SignalK and OTA are unavailable until the next reboot.
 
