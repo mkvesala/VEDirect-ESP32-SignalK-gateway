@@ -20,34 +20,41 @@ bool SignalKBroker::begin() {
 
 // Keepalive
 void SignalKBroker::handleStatus() {
-    if (_ws_open) _ws.poll();
+    if (_ws_open && _ws) _ws->poll();
 }
 
-// Connect 
+// Connect — build a brand-new client so every attempt starts from a clean TCP / lwIP
+// socket state; a reused client can retain a stuck socket that never recovers
 bool SignalKBroker::connectWebsocket() {
-    _ws_open = _ws.connect(_sk_url);
+    _ws = std::make_unique<WebsocketsClient>();
+    _ws->onMessage([this](WebsocketsMessage msg) {
+        this->onMessage(msg);
+    });
+    _ws->onEvent([this](WebsocketsEvent event, const String& data) {
+        this->onEvent(event, data);
+    });
+    _ws_open = _ws->connect(_sk_url);
     if (_ws_open) {
         _last_pong_ms = millis();   // seed liveness so a fresh socket is not flagged stale
-        _ws.onMessage([this](WebsocketsMessage msg) {
-            this->onMessage(msg);
-        });
-        _ws.onEvent([this](WebsocketsEvent event, const String& data) {
-            this->onEvent(event, data);
-        });
+    } else {
+        _ws.reset();                // failed connect → destroy immediately, free the socket
     }
     return _ws_open;
 }
 
-// Close
+// Close — destroy the client so no stale transport state survives to the next reconnect
 void SignalKBroker::closeWebsocket() {
-    _ws.close();
+    if (_ws) {
+        _ws->close();
+        _ws.reset();
+    }
     _ws_open = false;
     _last_pong_ms = 0;
 }
 
 // Send a client-initiated ping frame to probe liveness
 void SignalKBroker::ping() {
-    if (_ws_open) _ws.ping();
+    if (_ws_open && _ws) _ws->ping();
 }
 
 // Half-open detection: open, has been connected, but no pong within timeout
@@ -58,7 +65,7 @@ bool SignalKBroker::isStale(unsigned long now) const {
 
 // Send data to SignalK
 void SignalKBroker::sendDelta() {
-    if (!_ws_open) return;
+    if (!_ws_open || !_ws) return;
 
     ESPNow::BatteryDelta d = _processor.getDelta();
 
@@ -86,9 +93,9 @@ void SignalKBroker::sendDelta() {
 
     char buf[JSON_BUF_SIZE];
     size_t n = serializeJson(_delta_doc, buf, sizeof(buf));
-    if (!_ws.send(buf, n)) {
-        _ws.close();
-        _ws_open = false;
+    if (!_ws->send(buf, n)) {
+        this->closeWebsocket();   // destroy the client; backoff loop reconnects fresh
+        return;
     }
 }
 
@@ -123,7 +130,7 @@ void SignalKBroker::onEvent(WebsocketsEvent event, const String& /*data*/) {
             _ws_open = false;
             break;
         case WebsocketsEvent::GotPing:
-            _ws.pong();
+            if (_ws) _ws->pong();
             break;
         case WebsocketsEvent::GotPong:
             _last_pong_ms = millis();   // liveness refresh — feeds isStale()

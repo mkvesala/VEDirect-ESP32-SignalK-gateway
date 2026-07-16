@@ -4,6 +4,46 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [v1.2.0] - 2026-07-17
+
+`SignalKBroker` now owns its `WebsocketsClient` through a `std::unique_ptr` and builds a
+brand-new client on every reconnect. This fixes a rare permanent WebSocket reconnect
+failure where the gateway lost its SignalK connection after a long run (~12–48 h) and
+never recovered without a reboot — even though Wi-Fi stayed up, heap/stack were healthy,
+the main loop kept running, and stale detection plus exponential backoff fired correctly.
+
+### Fixed
+- Permanent WebSocket reconnect failure after long uptime — the root cause was
+  `SignalKBroker` keeping a single lifetime `WebsocketsClient` (`_ws` by value) and
+  `closeWebsocket()` only calling `_ws.close()`. The same object — and thus the same
+  underlying `WiFiClient` / lwIP socket — was reused on every reconnect; once that socket
+  stuck in an unrecoverable state (or leaked its fd), every subsequent `connect()`
+  inherited the corrupted transport and failed permanently. `connectWebsocket()` now
+  builds a fresh client with `std::make_unique<WebsocketsClient>()` and destroys it on a
+  failed connect; `closeWebsocket()` destroys it with `_ws.reset()`. Destroying the
+  client runs the `WiFiClient` destructor, freeing the lwIP socket fd, so every reconnect
+  starts from a clean TCP/WebSocket state
+
+### Changed
+- `SignalKBroker` owns the `WebsocketsClient` via `std::unique_ptr<websockets::WebsocketsClient>`
+  (`#include <memory>`) instead of a by-value member — the client is created per
+  `connectWebsocket()` and destroyed during teardown rather than persisted for the
+  application lifetime. Reconnect, exponential backoff, ping/pong liveness and SignalK
+  delta logic are unchanged — only the client lifecycle changed
+- `connectWebsocket()` now registers the `onMessage` / `onEvent` callbacks on the freshly
+  created client **before** calling `connect()` (previously registered only after a
+  successful connect) — a synchronously-fired `ConnectionOpened` event can no longer be
+  missed; the lambdas capture `this` (the broker), so recreating the client does not
+  invalidate them
+- Every `_ws` dereference is now null-guarded (`if (_ws_open && _ws) _ws->poll()`, `ping()`,
+  `pong()`, `send()`); `isOpen()` still reads the `_ws_open` bool, so the public API and
+  callers (`DisplayManager`, `WebUIManager`) are unchanged
+- `sendDelta()` send-failure teardown now routes through `closeWebsocket()` instead of an
+  inline `_ws.close()` — all client destruction funnels through one place, so `_last_pong_ms`
+  is consistently reset and the backoff loop reconnects with a fresh client
+
+[v1.2.0]: https://github.com/mkvesala/VEDirect-ESP32-SignalK-gateway/compare/v1.1.0...v1.2.0
+
 ## [v1.1.0] - 2026-07-04
 
 WiFi AP interface hardened with three-layer security and intrusion detection.

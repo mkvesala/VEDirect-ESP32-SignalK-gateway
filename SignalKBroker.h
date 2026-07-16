@@ -3,6 +3,7 @@
 #include <Arduino.h>
 #include <ArduinoWebsockets.h>
 #include <ArduinoJson.h>
+#include <memory>
 #include "VEDProcessor.h"
 
 // === C L A S S  S I G N A L K B R O K E R ===
@@ -15,7 +16,7 @@
 //  - Get connection status and source name
 //  - Send data to SignalK paths
 // - Uses: VEDProcessor
-// - Owns: WebsocketsClient
+// - Owns: WebsocketsClient (std::unique_ptr — fresh instance per reconnect)
 // - Owned by: VEDApplication
 
 class SignalKBroker {
@@ -42,7 +43,7 @@ private:
     static constexpr size_t JSON_BUF_SIZE  = 640;
 
     VEDProcessor &_processor;
-    websockets::WebsocketsClient _ws;
+    std::unique_ptr<websockets::WebsocketsClient> _ws;  // fresh instance every connect
     StaticJsonDocument<512> _delta_doc;
     StaticJsonDocument<256> _incoming_doc;
 
