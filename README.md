@@ -39,8 +39,8 @@ This is one of my individual digital boat projects. Use at your own risk. Not fo
 
 | Release | Branch | Comment |
 |---------|--------|---------|
-| v1.2.0 | feature/unique_ws | `SignalKBroker` owns the `WebsocketsClient` via `std::unique_ptr` and builds a fresh client on every reconnect — fixes a rare permanent WebSocket reconnect failure after long uptime where a stuck lwIP socket was reused indefinitely. |
-| v1.1.0 | feature/AP-security | AP interface secured (hidden SSID, WPA2, intrusion detection). Wi-Fi timeout extended to 3 min, static IP support and hardened reconnect/recovery added. Active WebSocket ping/pong liveness with graceful transport-only reconnect. GNSS structs added to shared ESP-NOW protocol. |
+| v1.2.0 | main | `SignalKBroker` owns the `WebsocketsClient` via `std::unique_ptr` and builds a fresh client on every reconnect — fixes a rare permanent WebSocket reconnect failure after long uptime where a stuck lwIP socket was reused indefinitely. |
+| v1.1.0 | main | AP interface secured (hidden SSID, WPA2, intrusion detection). Wi-Fi timeout extended to 3 min, static IP support and hardened reconnect/recovery added. Active WebSocket ping/pong liveness with graceful transport-only reconnect. GNSS structs added to shared ESP-NOW protocol. |
 | v1.0.0 | main | First versioned release. Full refactor into class-based architecture. ESP-NOW added. |
 
 ## Classes
