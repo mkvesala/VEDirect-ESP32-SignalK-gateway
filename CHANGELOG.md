@@ -4,6 +4,55 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [v1.2.1] - 2026-07-29
+
+Shared-protocol release. `espnow_protocol.h` is hand-copied into every ESP32 project on
+the boat; the copies had drifted into four versions and were merged into a single
+fleet-wide superset, which every project now holds byte-identically. This gateway's own
+firmware logic is untouched — no class, timing constant or SignalK path changed, and the
+`BatteryDelta` payload this device broadcasts is unchanged, so every existing receiver
+stays compatible.
+
+### Added
+- `ESPNowMsgType::HALMET_WATER_DELTA = 7` and `ESPNowMsgType::DEPTH_DELTA = 8` in
+  `espnow_protocol.h` — the fleet-wide `msg_type` number space now covers all eight
+  senders on the boat
+- `ESPNow::HALMETWaterDelta` payload struct — fresh water tank level
+  (`tanks.freshWater.0.currentLevel`, 0.0–1.0), sent by `HALMET-ESP32-SignalK-gateway`
+- `ESPNow::DepthDelta` payload struct (16 bytes) — depth below surface / transducer /
+  keel in metres plus an `age_ms` freshness field, sent by `SignalK-ESP-NOW-gateway`.
+  The values are relayed from the SignalK server rather than measured locally, so they
+  carry no freshness of their own: an individual path is `NAN` when stale or never
+  received, and `age_ms` (`UINT32_MAX` = never) describes the depth feed as a whole
+- `ESPNow::GnssData::cog_valid`, `lat_deg` and `lon_deg` members plus a `hasCog()`
+  accessor — receiver-side course validity is now tracked separately from position
+  validity, and the internal struct carries the position needed by a receiver's
+  position display
+- File-level documentation block in `espnow_protocol.h` — states that no single project
+  owns the file, that a change is done only once every copy is identical, and lists the
+  fleet-wide `msg_type` allocation together with the senders and receivers, so a new
+  value is never allocated by looking at only two projects
+- Commented-out `GENERIC_SK_DELTA = 20` reservation documenting a rejected
+  runtime-configurable path-relaying message (`char path[48]` per packet) — recorded so
+  the number is not reused and the trade-off is not re-litigated
+
+### Fixed
+- Position and SOG suppressed at anchor on ESP-NOW receivers —
+  `ESPNow::convertGnssDeltaToData()` folded a NaN COG into `fix_ok`, so a stationary
+  boat, which has a valid position fix but an undefined course, appeared to have no fix
+  at all and receivers hid position and SOG entirely. `fix_ok` now reflects position fix
+  only; COG validity lives in the separate `cog_valid` flag, and SOG and position are
+  gated on the fix rather than on the course. Receiver-side conversion only — the data
+  this gateway transmits is unaffected
+
+### Changed
+- `ESPNow::GnssData` field comments clarify that `cog_true_x10` is meaningful only when
+  `cog_valid` is set and that `sog_knots_x10` is zero without a fix; the "CROWPANEL
+  INTERNAL DATA" section is documented as receiver-side only — sending projects such as
+  this one compile the structs and inline converters but emit no code for them
+
+[v1.2.1]: https://github.com/mkvesala/VEDirect-ESP32-SignalK-gateway/compare/v1.2.0...v1.2.1
+
 ## [v1.2.0] - 2026-07-17
 
 `SignalKBroker` now owns its `WebsocketsClient` through a `std::unique_ptr` and builds a

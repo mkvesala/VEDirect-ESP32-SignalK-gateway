@@ -39,6 +39,7 @@ This is one of my individual digital boat projects. Use at your own risk. Not fo
 
 | Release | Branch | Comment |
 |---------|--------|---------|
+| v1.2.1 | main | Shared `espnow_protocol.h` updated to the fleet-wide superset — adds `HALMET_WATER_DELTA` (7) and `DEPTH_DELTA` (8) with their payload structs, documents the shared-header rules and `msg_type` allocation, and fixes receiver-side GNSS conversion that hid position and SOG at anchor. Wire format of this gateway unchanged. |
 | v1.2.0 | main | `SignalKBroker` owns the `WebsocketsClient` via `std::unique_ptr` and builds a fresh client on every reconnect — fixes a rare permanent WebSocket reconnect failure after long uptime where a stuck lwIP socket was reused indefinitely. |
 | v1.1.0 | main | AP interface secured (hidden SSID, WPA2, intrusion detection). Wi-Fi timeout extended to 3 min, static IP support and hardened reconnect/recovery added. Active WebSocket ping/pong liveness with graceful transport-only reconnect. GNSS structs added to shared ESP-NOW protocol. |
 | v1.0.0 | main | First versioned release. Full refactor into class-based architecture. ESP-NOW added. |
@@ -157,6 +158,8 @@ Broadcasts battery data via ESP-NOW protocol for other ESP32 devices such as ext
 
 All ESP-NOW messages use the shared `ESPNow::ESPNowPacket` wrapper (`ESPNowHeader` + typed payload) defined in `espnow_protocol.h`.
 
+`espnow_protocol.h` is a fleet-wide file: it is hand-copied identically into every ESP32 project on the boat, and no single project owns it. `ESPNowMsgType` is one shared number space across all senders, so a change is made in whichever project needs it and is then copied whole to every other project — the change is not done until all copies are identical. Reconciling two versions field by field is what caused the copies to drift apart in the first place.
+
 **Sends** at ~1 s interval:
 - `ESPNow::ESPNowPacket<BatteryDelta>` — payload `BatteryDelta` containing:
   - `house_voltage` (V)
@@ -194,7 +197,7 @@ Using a different display can be done within `DisplayManager` while keeping its 
 | `secrets.example.h` | Example credentials. Rename to `secrets.h` and populate with your credentials |
 | `version.h` | Software version constant |
 | `helpers.h` | Global helper functions |
-| `espnow_protocol.h` | Shared ESP-NOW protocol definitions (header, payload structs, packet wrapper) |
+| `espnow_protocol.h` | Shared ESP-NOW protocol definitions (header, payload structs, packet wrapper) — fleet-wide superset, kept byte-identical in every project |
 | `WifiState.h` | Enum class for Wi-Fi states |
 | `VEDSensor.h / .cpp` | Class `VEDSensor` — VE.Direct UART reader, FreeRTOS task, thread-safe cache |
 | `VEDProcessor.h / .cpp` | Class `VEDProcessor` — unit conversion and `BatteryDelta` assembly |
