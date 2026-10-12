@@ -4,6 +4,18 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [v1.2.2] - 2026-10-12
+
+Documentation-only release. No firmware logic, wire format or SignalK path changed.
+
+### Added
+- README: Disclaimer section below the badges, matching the other gateway projects
+
+### Removed
+- README: paragraph describing `espnow_protocol.h` as a fleet-wide hand-copied file
+
+[v1.2.2]: https://github.com/mkvesala/VEDirect-ESP32-SignalK-gateway/compare/v1.2.1...v1.2.2
+
 ## [v1.2.1] - 2026-07-29
 
 Shared-protocol release. `espnow_protocol.h` is hand-copied into every ESP32 project on

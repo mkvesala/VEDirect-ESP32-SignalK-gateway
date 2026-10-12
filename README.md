@@ -9,6 +9,16 @@
 [![Protocol: ESP-NOW](https://img.shields.io/badge/Protocol-ESP--NOW-red)](https://www.espressif.com/en/solutions/low-power-solutions/esp-now)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
+## Disclaimer
+
+This is a personal hobby project. It is provided "as is", without warranty of any kind. See LICENSE.
+
+This firmware is NOT intended for navigation or for any safety-critical use at sea. Do not rely on the data it produces (such as heading, depth or position) to navigate a vessel. Always use certified navigation equipment and proper seamanship.
+
+You use this code entirely at your own risk. The author accepts no liability for any damage, injury or loss arising from its use.
+
+## Introduction
+
 ESP32-based gateway that reads battery data from a [Victron SmartShunt](https://www.victronenergy.com/battery-monitors/smart-battery-shunt) via the VE.Direct text protocol and forwards it to a [SignalK](https://signalk.org) server via WebSocket/JSON and to other ESP32 devices via ESP-NOW.
 
 Reads five values from the SmartShunt: house battery voltage, current and power, state of charge, and starter battery voltage. Converts raw VE.Direct integers to SI units (V, A, W, SoC as percent) and sends all five values in a single SignalK delta every second.
@@ -39,6 +49,7 @@ This is one of my individual digital boat projects. Use at your own risk. Not fo
 
 | Release | Branch | Comment |
 |---------|--------|---------|
+| v1.2.2 | main | Documentation only — Disclaimer section added to README, fleet-wide `espnow_protocol.h` paragraph removed. |
 | v1.2.1 | main | Shared `espnow_protocol.h` updated to the fleet-wide superset — adds `HALMET_WATER_DELTA` (7) and `DEPTH_DELTA` (8) with their payload structs, documents the shared-header rules and `msg_type` allocation, and fixes receiver-side GNSS conversion that hid position and SOG at anchor. Wire format of this gateway unchanged. |
 | v1.2.0 | main | `SignalKBroker` owns the `WebsocketsClient` via `std::unique_ptr` and builds a fresh client on every reconnect — fixes a rare permanent WebSocket reconnect failure after long uptime where a stuck lwIP socket was reused indefinitely. |
 | v1.1.0 | main | AP interface secured (hidden SSID, WPA2, intrusion detection). Wi-Fi timeout extended to 3 min, static IP support and hardened reconnect/recovery added. Active WebSocket ping/pong liveness with graceful transport-only reconnect. GNSS structs added to shared ESP-NOW protocol. |
@@ -157,8 +168,6 @@ The device connects with a static IP address configured via `WiFi.config()` from
 Broadcasts battery data via ESP-NOW protocol for other ESP32 devices such as external displays. Operates independently of Wi-Fi — broadcast continues even if SignalK connection is lost.
 
 All ESP-NOW messages use the shared `ESPNow::ESPNowPacket` wrapper (`ESPNowHeader` + typed payload) defined in `espnow_protocol.h`.
-
-`espnow_protocol.h` is a fleet-wide file: it is hand-copied identically into every ESP32 project on the boat, and no single project owns it. `ESPNowMsgType` is one shared number space across all senders, so a change is made in whichever project needs it and is then copied whole to every other project — the change is not done until all copies are identical. Reconciling two versions field by field is what caused the copies to drift apart in the first place.
 
 **Sends** at ~1 s interval:
 - `ESPNow::ESPNowPacket<BatteryDelta>` — payload `BatteryDelta` containing:
