@@ -4,6 +4,21 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [v1.2.3] - 2026-11-07
+
+Shared-protocol release. This gateway's own firmware logic is untouched — no class, timing
+constant or SignalK path changed, and the `BatteryDelta` payload this device broadcasts is
+unchanged.
+
+### Added
+- `ESPNowMsgType::HALMET_OIL_DELTA = 10` and the `HALMETOilDelta` payload struct in
+  `espnow_protocol.h` (engine oil pressure, `propulsion.0.oilPressure` [Pa], sent by
+  HALMET-ESP32-SignalK-gateway), synced byte-identically from the fleet-wide copy. Additive
+  only: no existing enum value or payload struct changed, so every existing receiver stays
+  compatible. This gateway neither sends nor reads the new type
+
+[v1.2.3]: https://github.com/mkvesala/VEDirect-ESP32-SignalK-gateway/compare/v1.2.2...v1.2.3
+
 ## [v1.2.2] - 2026-10-12
 
 Documentation-only release. No firmware logic, wire format or SignalK path changed.

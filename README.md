@@ -49,6 +49,7 @@ This is one of my individual digital boat projects. Use at your own risk. Not fo
 
 | Release | Branch | Comment |
 |---------|--------|---------|
+| v1.2.3 | main | Shared `espnow_protocol.h` synced with the fleet-wide copy — adds `HALMET_OIL_DELTA` (10) and its `HALMETOilDelta` payload struct. Wire format of this gateway unchanged. |
 | v1.2.2 | main | Documentation only — Disclaimer section added to README, fleet-wide `espnow_protocol.h` paragraph removed. |
 | v1.2.1 | main | Shared `espnow_protocol.h` updated to the fleet-wide superset — adds `HALMET_WATER_DELTA` (7) and `DEPTH_DELTA` (8) with their payload structs, documents the shared-header rules and `msg_type` allocation, and fixes receiver-side GNSS conversion that hid position and SOG at anchor. Wire format of this gateway unchanged. |
 | v1.2.0 | main | `SignalKBroker` owns the `WebsocketsClient` via `std::unique_ptr` and builds a fresh client on every reconnect — fixes a rare permanent WebSocket reconnect failure after long uptime where a stuck lwIP socket was reused indefinitely. |

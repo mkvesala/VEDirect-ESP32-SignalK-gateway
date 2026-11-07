@@ -1,2 +1,2 @@
 #pragma once
-inline constexpr const char* SW_VERSION = "v1.2.2";
+inline constexpr const char* SW_VERSION = "v1.2.3";
