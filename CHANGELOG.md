@@ -4,6 +4,38 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [v1.2.4] - 2026-11-09
+
+Patch release: WiFi outage recovery. ESP-NOW no longer stops when the boat's WiFi router goes
+down, and WiFi and SignalK come back on their own when the router returns.
+
+### Fixed
+
+#### Firmware
+- `handleWifi()` no longer switches the radio off. A timed-out or failed connection attempt used to
+  end in `WiFi.disconnect(true)` + `WiFi.mode(WIFI_OFF)` and the terminal `OFF` state, which also
+  stopped ESP-NOW. Only a power cycle restored SignalK and ESP-NOW. This happened on the boat on
+  2026-10-05 when the router went silent and was later restarted.
+- After a failed attempt the STA idles in `DISCONNECTED` with the radio on and retries by itself.
+  Each attempt lasts up to ~15 s (`WIFI_TIMEOUT_MS`, was 179999 ms), and the wait between attempts
+  backs off from ~30 s to ~2 min (`WIFI_RETRY_MS`, `WIFI_RETRY_MAX_MS`). The SignalK WebSocket
+  reconnects through its existing back-off once WiFi is back. The immediate exit on
+  `WL_NO_SSID_AVAIL` / `WL_CONNECT_FAILED` was removed, since the status can be stale right after
+  `WiFi.begin()`.
+- The soft AP is created on `ESPNOW_CHANNEL` (6, was channel 1), and the idle radio is held on that
+  channel between retries, so ESP-NOW reaches the receivers even when the router is absent.
+- `WiFi.setAutoReconnect(false)`: the Arduino core no longer reconnects and scans in the background.
+  `handleWifi()` is the only reconnect logic, which keeps channel scans rare. ESP-NOW packets
+  can be missed during a scan (about 2 s).
+- The LCD shows "NO WIFI / ESP-NOW ONLY" also while waiting for the next retry.
+
+### Notes
+- The router's WiFi channel must be fixed to `ESPNOW_CHANNEL` (6). Automatic channel selection
+  breaks ESP-NOW whenever the channel changes.
+- No change to the ESP-NOW wire format, NVS settings, SignalK paths or the web UI.
+
+[v1.2.4]: https://github.com/mkvesala/VEDirect-ESP32-SignalK-gateway/compare/v1.2.3...v1.2.4
+
 ## [v1.2.3] - 2026-11-07
 
 Shared-protocol release. This gateway's own firmware logic is untouched — no class, timing

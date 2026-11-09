@@ -49,6 +49,7 @@ This is one of my individual digital boat projects. Use at your own risk. Not fo
 
 | Release | Branch | Comment |
 |---------|--------|---------|
+| v1.2.4 | main | WiFi outage recovery: the radio stays on, so ESP-NOW keeps broadcasting while the router is down, and WiFi and SignalK reconnect by themselves. See CHANGELOG. |
 | v1.2.3 | main | Shared `espnow_protocol.h` synced with the fleet-wide copy — adds `HALMET_OIL_DELTA` (10) and its `HALMETOilDelta` payload struct. Wire format of this gateway unchanged. |
 | v1.2.2 | main | Documentation only — Disclaimer section added to README, fleet-wide `espnow_protocol.h` paragraph removed. |
 | v1.2.1 | main | Shared `espnow_protocol.h` updated to the fleet-wide superset — adds `HALMET_WATER_DELTA` (7) and `DEPTH_DELTA` (8) with their payload structs, documents the shared-header rules and `msg_type` allocation, and fixes receiver-side GNSS conversion that hid position and SOG at anchor. Wire format of this gateway unchanged. |
@@ -158,7 +159,7 @@ WebSocket reconnection uses exponential backoff starting at ~2 s, doubling on ea
 
 **Connection liveness (active ping/pong):** while the socket is open the device sends a WebSocket ping every ~10 s and tracks the server's pong. If no pong arrives within ~30 s the connection is considered dead — even when `isOpen()` still reports `true`, as happens with a half-open TCP connection (e.g. the SignalK host freezing the link under power-saving) — and the socket is closed so the exponential back-off reconnects it. Recovery is transport-only: the device does **not** reboot, so ESP-NOW, the LCD and uptime are unaffected.
 
-Wi-Fi connection is attempted for ~3 min on boot. If it times out or fails, the device continues running with ESP-NOW only; SignalK and OTA are unavailable until the next reboot.
+Each Wi-Fi connection attempt lasts up to ~15 s. If it fails, the device keeps running with ESP-NOW only and retries every ~30 s–2 min (exponential back-off) until the network returns; SignalK and OTA resume without a reboot. The radio is never switched off, and while waiting it is held on ESP-NOW channel 6.
 
 The device connects with a static IP address configured via `WiFi.config()` from `WIFI_STATIC_IP` / `WIFI_GATEWAY` / `WIFI_SUBNET` in `secrets.h`, rather than relying on the router's DHCP lease table — keep the chosen address outside the router's DHCP pool. If Wi-Fi drops, the connection is rebuilt with a hard reset (`WiFi.disconnect(true)` + reapplied static IP and sleep settings) and the SignalK WebSocket is reopened automatically.
 
