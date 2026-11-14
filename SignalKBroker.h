@@ -44,8 +44,8 @@ private:
 
     VEDProcessor &_processor;
     std::unique_ptr<websockets::WebsocketsClient> _ws;  // fresh instance every connect
-    StaticJsonDocument<512> _delta_doc;
-    StaticJsonDocument<256> _incoming_doc;
+    JsonDocument _delta_doc;
+    JsonDocument _incoming_doc;
 
     // Liveness — half-open TCP detection via client ping / server pong
     static constexpr unsigned long PONG_TIMEOUT_MS = 29989UL;  // ~30 s w/o pong -> stale

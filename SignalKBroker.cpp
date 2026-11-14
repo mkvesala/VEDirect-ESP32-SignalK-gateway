@@ -71,14 +71,14 @@ void SignalKBroker::sendDelta() {
 
     _delta_doc.clear();
     _delta_doc["context"] = "vessels.self";
-    auto updates = _delta_doc.createNestedArray("updates");
-    auto up = updates.createNestedObject();
+    auto updates = _delta_doc["updates"].to<JsonArray>();
+    auto up = updates.add<JsonObject>();
     up["$source"] = _sk_source;
-    auto values = up.createNestedArray("values");
+    auto values = up["values"].to<JsonArray>();
 
     auto add = [&](const char* path, float v) {
         if (!validf(v)) return;
-        auto o = values.createNestedObject();
+        auto o = values.add<JsonObject>();
         o["path"] = path;
         o["value"] = v;
     };
@@ -90,6 +90,7 @@ void SignalKBroker::sendDelta() {
     add("electrical.batteries.start.voltage", d.start_voltage);
 
     if (values.size() == 0) return;
+    if (_delta_doc.overflowed()) return;   // heap ran out while building — never send a partial delta
 
     char buf[JSON_BUF_SIZE];
     size_t n = serializeJson(_delta_doc, buf, sizeof(buf));
